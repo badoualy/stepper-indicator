@@ -71,12 +71,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 5;
+            return 6;
         }
 
         @Override
         public Fragment getItem(int position) {
-            return PageFragment.newInstance(position + 1, position == 4);
+            return PageFragment.newInstance(position + 1, position == getCount() - 1);
         }
 
     }

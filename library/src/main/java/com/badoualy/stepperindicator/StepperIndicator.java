@@ -29,7 +29,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     private float lineMargin;
 
     private int stepCount;
-    private int currentStep;
+    private int currentStep = 1;
 
     private float[] indicators;
 
@@ -209,16 +209,19 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             throw new IllegalStateException("ViewPager does not have adapter instance.");
         this.pager = pager;
         this.stepCount = stepCount;
+        currentStep = 1;
         pager.addOnPageChangeListener(this);
         invalidate();
     }
 
     public void reset() {
         currentStep = 1;
+        invalidate();
     }
 
     public void complete() {
         currentStep = stepCount;
+        invalidate();
     }
 
     @Override
