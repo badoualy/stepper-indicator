@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="stpi_default_circle_radius">10dp</dimen>
-    <dimen name="stpi_default_circle_storke_width">4dp</dimen>
+    <dimen name="stpi_default_circle_stroke_width">4dp</dimen>
     <dimen name="stpi_default_indicator_radius">4dp</dimen>
     <dimen name="stpi_default_line_stroke_width">2dp</dimen>
     <dimen name="stpi_default_line_margin">5dp</dimen>

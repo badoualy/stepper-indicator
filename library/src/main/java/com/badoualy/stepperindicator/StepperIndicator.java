@@ -61,7 +61,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         // Default value
         int defaultCircleColor = ContextCompat.getColor(context, R.color.stpi_default_circle_color);
         float defaultCircleRadius = resources.getDimension(R.dimen.stpi_default_circle_radius);
-        float defaultCircleStrokeWidth = resources.getDimension(R.dimen.stpi_default_circle_storke_width);
+        float defaultCircleStrokeWidth = resources.getDimension(R.dimen.stpi_default_circle_stroke_width);
 
         int defaultIndicatorColor = ContextCompat.getColor(context, R.color.stpi_default_indicator_color);
         float defaultIndicatorRadius = resources.getDimension(R.dimen.stpi_default_indicator_radius);
