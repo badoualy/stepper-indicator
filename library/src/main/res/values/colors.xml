@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="stpi_default_circle_color">#b3bdc2</color>
+    <color name="stpi_default_indicator_color">#00b47c</color>
+    <color name="stpi_default_line_color">#b3bdc2</color>
+    <color name="stpi_default_line_done_color">#00b47c</color>
+</resources>

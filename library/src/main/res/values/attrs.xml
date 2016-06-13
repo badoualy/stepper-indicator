@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <declare-styleable name="StepperIndicator" tools:ignore="ResourceName">
+        <attr name="stpi_stepCount" format="integer"/>
+        <attr name="stpi_circleColor" format="color"/>
+        <attr name="stpi_circleRadius" format="dimension"/>
+        <attr name="stpi_circleStrokeWidth" format="dimension"/>
+        <attr name="stpi_indicatorColor" format="color"/>
+        <attr name="stpi_indicatorRadius" format="dimension"/>
+        <attr name="stpi_lineColor" format="color"/>
+        <attr name="stpi_lineDoneColor" format="color"/>
+        <attr name="stpi_lineStrokeWidth" format="dimension"/>
+        <attr name="stpi_lineMargin" format="dimension"/>
+    </declare-styleable>
+</resources>
