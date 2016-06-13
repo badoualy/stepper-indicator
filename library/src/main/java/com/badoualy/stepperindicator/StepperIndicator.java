@@ -90,7 +90,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
         linePaint = new Paint();
         linePaint.setStrokeWidth(a.getDimension(R.styleable.StepperIndicator_stpi_lineStrokeWidth, defaultLineStrokeWidth));
-        //linePaint.setStrokeCap(Paint.Cap.ROUND);
+        linePaint.setStrokeCap(Paint.Cap.ROUND);
         linePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_lineColor, defaultLineColor));
         linePaint.setAntiAlias(true);
 
@@ -189,16 +189,18 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     }
 
     public void setViewPager(ViewPager pager) {
+        if (pager.getAdapter() == null)
+            throw new IllegalStateException("ViewPager does not have adapter instance.");
         setViewPager(pager, pager.getAdapter().getCount());
     }
 
     /**
      * Sets the pager associated with this indicator
      *
-     * @param pager         viewpager to attach
-     * @param realPageCount the real page count to display (use this if you are using looped viewpager)
+     * @param pager     viewpager to attach
+     * @param stepCount the real page count to display (use this if you are using looped viewpager)
      */
-    public void setViewPager(ViewPager pager, int realPageCount) {
+    public void setViewPager(ViewPager pager, int stepCount) {
         if (this.pager == pager)
             return;
         if (this.pager != null)
@@ -206,9 +208,17 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         if (pager.getAdapter() == null)
             throw new IllegalStateException("ViewPager does not have adapter instance.");
         this.pager = pager;
-        this.stepCount = realPageCount;
+        this.stepCount = stepCount;
         pager.addOnPageChangeListener(this);
         invalidate();
+    }
+
+    public void reset() {
+        currentStep = 1;
+    }
+
+    public void complete() {
+        currentStep = stepCount;
     }
 
     @Override
