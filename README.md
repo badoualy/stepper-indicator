@@ -5,6 +5,11 @@
 <img src="https://github.com/badoualy/stepper-indicator/blob/master/ART/screen.gif" width="300">
 
 
+Sample
+----------------
+
+You can checkout the [Sample Application](https://play.google.com/store/apps/details?id=com.badoualy.stepperindicator.sample) on the Play Store
+
 Setup
 ----------------
 
