@@ -1,5 +1,7 @@
 package com.badoualy.stepperindicator;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
@@ -7,34 +9,56 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PathEffect;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@SuppressWarnings("unused")
 public class StepperIndicator extends View implements ViewPager.OnPageChangeListener {
 
+    private static final int DEFAULT_ANIMATION_DURATION = 250;
+    private static final float EXPAND_MARK = 1.3f;
+
     private Paint circlePaint;
-    private Paint circleDonePaint;
-    private Paint linePaint;
-    private Paint lineDonePaint;
+    private Paint linePaint, lineDonePaint, lineDoneAnimatedPaint;
     private Paint indicatorPaint;
 
+    private List<Path> linePathList = new ArrayList<>();
+    private float animProgress;
+    private float animIndicatorRadius;
+    private float animCheckRadius;
+    private float lineLength;
+
     private float circleRadius;
+    private float checkRadius;
     private float indicatorRadius;
     private float lineMargin;
+    private int animDuration;
 
     private int stepCount;
-    private int currentStep = 1;
+    private int currentStep;
 
     private float[] indicators;
 
     private ViewPager pager;
     private Bitmap doneIcon;
+
+    private AnimatorSet animatorSet;
+    private ObjectAnimator lineAnimator, indicatorAnimator, checkAnimator;
+    private int previousStep;
 
     public StepperIndicator(Context context) {
         this(context, null);
@@ -74,82 +98,140 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.StepperIndicator, defStyleAttr, 0);
 
         circlePaint = new Paint();
-        circlePaint.setStrokeWidth(defaultCircleStrokeWidth);
+        circlePaint.setStrokeWidth(a.getDimension(R.styleable.StepperIndicator_stpi_circleStrokeWidth, defaultCircleStrokeWidth));
         circlePaint.setStyle(Paint.Style.STROKE);
         circlePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_circleColor, defaultCircleColor));
         circlePaint.setAntiAlias(true);
 
-        indicatorPaint = new Paint();
+        indicatorPaint = new Paint(circlePaint);
         indicatorPaint.setStyle(Paint.Style.FILL);
         indicatorPaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_indicatorColor, defaultIndicatorColor));
         indicatorPaint.setAntiAlias(true);
 
-        circleDonePaint = new Paint(circlePaint);
-        circleDonePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        circleDonePaint.setColor(indicatorPaint.getColor());
-
         linePaint = new Paint();
         linePaint.setStrokeWidth(a.getDimension(R.styleable.StepperIndicator_stpi_lineStrokeWidth, defaultLineStrokeWidth));
         linePaint.setStrokeCap(Paint.Cap.ROUND);
+        linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_lineColor, defaultLineColor));
         linePaint.setAntiAlias(true);
 
         lineDonePaint = new Paint(linePaint);
         lineDonePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_lineDoneColor, defaultLineDoneColor));
 
+        lineDoneAnimatedPaint = new Paint(lineDonePaint);
+
         circleRadius = a.getDimension(R.styleable.StepperIndicator_stpi_circleRadius, defaultCircleRadius);
+        checkRadius = circleRadius + circlePaint.getStrokeWidth() / 2f;
         indicatorRadius = a.getDimension(R.styleable.StepperIndicator_stpi_indicatorRadius, defaultIndicatorRadius);
+        animIndicatorRadius = indicatorRadius;
+        animCheckRadius = checkRadius;
         lineMargin = a.getDimension(R.styleable.StepperIndicator_stpi_lineMargin, defaultLineMargin);
 
         setStepCount(a.getInteger(R.styleable.StepperIndicator_stpi_stepCount, 2));
+        animDuration = a.getInteger(R.styleable.StepperIndicator_stpi_animDuration, DEFAULT_ANIMATION_DURATION);
 
         a.recycle();
 
         doneIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_done_white_18dp);
 
         if (isInEditMode())
-            currentStep = Math.max((int) Math.ceil(stepCount / 2f), 2);
+            currentStep = Math.max((int) Math.ceil(stepCount / 2f), 1);
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
-        float centerY = getMeasuredHeight() / 2f;
-        float circleCenterY = centerY;
-        float lineCenterY = centerY;
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        compute();
+    }
 
-        float startX = circleRadius + circlePaint.getStrokeWidth() / 2f;
+    private void compute() {
+        indicators = new float[stepCount];
+        linePathList.clear();
+
+        float startX = circleRadius * EXPAND_MARK + circlePaint.getStrokeWidth() / 2f;
 
         // Compute position of indicators and line length
         float divider = (getMeasuredWidth() - startX * 2f) / (stepCount - 1);
-        float lineLength = divider - (circleRadius * 2f + circlePaint.getStrokeWidth()) - (lineMargin * 2);
+        lineLength = divider - (circleRadius * 2f + circlePaint.getStrokeWidth()) - (lineMargin * 2);
 
-        // Compute position of circles
+        // Compute position of circles and lines once
         for (int i = 0; i < indicators.length; i++)
             indicators[i] = startX + divider * i;
+        for (int i = 0; i < indicators.length - 1; i++) {
+            float position = ((indicators[i] + indicators[i + 1]) / 2) - lineLength / 2;
+            final Path linePath = new Path();
+            linePath.moveTo(position, getMeasuredHeight() / 2);
+            linePath.lineTo(position + lineLength, getMeasuredHeight() / 2);
+            linePathList.add(linePath);
+        }
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    protected void onDraw(Canvas canvas) {
+        float centerY = getMeasuredHeight() / 2f;
+
+        // Currently Drawing animation from step n-1 to n, or back from n+1 to n
+        boolean inAnimation = false;
+        boolean inLineAnimation = false;
+        boolean inIndicatorAnimation = false;
+        boolean inCheckAnimation = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            inAnimation = animatorSet != null && animatorSet.isRunning();
+            inLineAnimation = lineAnimator != null && lineAnimator.isRunning();
+            inIndicatorAnimation = indicatorAnimator != null && indicatorAnimator.isRunning();
+            inCheckAnimation = checkAnimator != null && checkAnimator.isRunning();
+        }
+
+        boolean drawToNext = previousStep == currentStep - 1;
+        boolean drawFromNext = previousStep == currentStep + 1;
 
         for (int i = 0; i < indicators.length; i++) {
             final float indicator = indicators[i];
-            if (i >= currentStep - 1) {
-                canvas.drawCircle(indicator, circleCenterY, circleRadius, circlePaint);
-                if (i == currentStep - 1)
-                    canvas.drawCircle(indicator, circleCenterY, indicatorRadius, indicatorPaint);
-            } else {
-                canvas.drawCircle(indicator, circleCenterY, circleRadius, circleDonePaint);
-                if (!isInEditMode())
-                    canvas.drawBitmap(doneIcon, indicator - (doneIcon.getWidth() / 2), circleCenterY - (doneIcon.getHeight() / 2), null);
+            boolean drawCheck = i < currentStep || (drawFromNext && i == currentStep);
+
+            // Draw back circle
+            canvas.drawCircle(indicator, centerY, circleRadius, circlePaint);
+
+            // If current step, or coming back from next step and still animating
+            if ((i == currentStep && !drawFromNext) || (i == previousStep && drawFromNext && inAnimation)) {
+                // Draw animated indicator
+                canvas.drawCircle(indicator, centerY, animIndicatorRadius, indicatorPaint);
             }
 
-            if (i != indicators.length - 1) {
-                float lineCenterX = (indicator + indicators[i + 1]) / 2;
-                canvas.drawLine(lineCenterX - lineLength / 2, lineCenterY, lineCenterX + lineLength / 2, lineCenterY,
-                                i < currentStep - 1 ? lineDonePaint : linePaint);
+            // Draw check mark
+            if (drawCheck) {
+                float radius = checkRadius;
+                if ((i == previousStep && drawToNext)
+                        || (i == currentStep && drawFromNext))
+                    radius = animCheckRadius;
+                canvas.drawCircle(indicator, centerY, radius, indicatorPaint);
+                if (!isInEditMode()) {
+                    if ((i != previousStep && i != currentStep) || (!inCheckAnimation && !(i == currentStep && !inAnimation)))
+                        canvas.drawBitmap(doneIcon, indicator - (doneIcon.getWidth() / 2), centerY - (doneIcon.getHeight() / 2), null);
+                }
+            }
+
+            // Draw lines
+            if (i < linePathList.size()) {
+                if (i >= currentStep) {
+                    canvas.drawPath(linePathList.get(i), linePaint);
+                    if (i == currentStep && drawFromNext && (inLineAnimation || inIndicatorAnimation)) // Coming back from n+1
+                        canvas.drawPath(linePathList.get(i), lineDoneAnimatedPaint);
+                } else {
+                    if (i == currentStep - 1 && drawToNext && inLineAnimation) {
+                        // Going to n+1
+                        canvas.drawPath(linePathList.get(i), linePaint);
+                        canvas.drawPath(linePathList.get(i), lineDoneAnimatedPaint);
+                    } else
+                        canvas.drawPath(linePathList.get(i), lineDonePaint);
+                }
             }
         }
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int desiredHeight = (int) Math.ceil((circleRadius * 2) + circlePaint.getStrokeWidth());
+        int desiredHeight = (int) Math.ceil((circleRadius * EXPAND_MARK * 2) + circlePaint.getStrokeWidth());
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -166,7 +248,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         if (stepCount < 2)
             throw new IllegalArgumentException("stepCount must be >= 2");
         this.stepCount = stepCount;
-        indicators = new float[stepCount];
+        currentStep = 0;
+        compute();
         invalidate();
     }
 
@@ -174,18 +257,97 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         return stepCount;
     }
 
+    public int getCurrentStep() {
+        return currentStep;
+    }
+
     /**
-     * Starts from 1
+     * Sets the current step
      *
-     * @param currentStep
+     * @param currentStep a value between 0 (inclusive) and stepCount (exclusive)
      */
+    @UiThread
     public void setCurrentStep(int currentStep) {
+        if (currentStep < 0 || currentStep >= stepCount)
+            throw new IllegalArgumentException("Invalid step value " + currentStep);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            if (animatorSet != null)
+                animatorSet.cancel();
+            animatorSet = null;
+            lineAnimator = null;
+            indicatorAnimator = null;
+
+            if (currentStep == this.currentStep + 1) {
+                previousStep = this.currentStep;
+                animatorSet = new AnimatorSet();
+
+                // First, draw line to new
+                lineAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animProgress", 1.0f, 0.0f);
+
+                // Same time, pop check mark
+                checkAnimator = ObjectAnimator
+                        .ofFloat(StepperIndicator.this, "animCheckRadius", indicatorRadius, checkRadius * EXPAND_MARK, checkRadius);
+
+                // Finally, pop current step indicator
+                animIndicatorRadius = 0;
+                indicatorAnimator = ObjectAnimator
+                        .ofFloat(StepperIndicator.this, "animIndicatorRadius", 0f, indicatorRadius * 1.4f, indicatorRadius);
+
+                animatorSet.play(lineAnimator).with(checkAnimator).before(indicatorAnimator);
+            } else if (currentStep == this.currentStep - 1) {
+                previousStep = this.currentStep;
+                animatorSet = new AnimatorSet();
+
+                // First, pop out current step indicator
+                indicatorAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animIndicatorRadius", indicatorRadius, 0f);
+
+                // Then delete line
+                animProgress = 1.0f;
+                lineDoneAnimatedPaint.setPathEffect(null);
+                lineAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animProgress", 0.0f, 1.0f);
+
+                // Finally, pop out check mark to display step indicator
+                animCheckRadius = checkRadius;
+                checkAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animCheckRadius", checkRadius, indicatorRadius);
+
+                animatorSet.playSequentially(indicatorAnimator, lineAnimator, checkAnimator);
+            }
+
+            if (animatorSet != null) {
+                lineAnimator.setDuration(Math.min(500, animDuration));
+                lineAnimator.setInterpolator(new DecelerateInterpolator());
+                indicatorAnimator.setDuration(lineAnimator.getDuration() / 2);
+                checkAnimator.setDuration(lineAnimator.getDuration() / 2);
+
+                animatorSet.start();
+            }
+        }
+
         this.currentStep = currentStep;
         invalidate();
     }
 
-    public int getCurrentStep() {
-        return currentStep;
+    /** DO NOT CALL, used by animation to draw line */
+    public void setAnimProgress(float animProgress) {
+        this.animProgress = animProgress;
+        lineDoneAnimatedPaint.setPathEffect(createPathEffect(lineLength, animProgress, 0.0f));
+        invalidate();
+    }
+
+    public void setAnimIndicatorRadius(float animIndicatorRadius) {
+        this.animIndicatorRadius = animIndicatorRadius;
+        invalidate();
+    }
+
+    public void setAnimCheckRadius(float animCheckRadius) {
+        this.animCheckRadius = animCheckRadius;
+        invalidate();
+    }
+
+    private static PathEffect createPathEffect(float pathLength, float phase, float offset) {
+        return new DashPathEffect(new float[]{pathLength, pathLength},
+                                  Math.max(phase * pathLength, offset));
     }
 
     public void setViewPager(ViewPager pager) {
@@ -209,18 +371,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             throw new IllegalStateException("ViewPager does not have adapter instance.");
         this.pager = pager;
         this.stepCount = stepCount;
-        currentStep = 1;
+        currentStep = 0;
         pager.addOnPageChangeListener(this);
-        invalidate();
-    }
-
-    public void reset() {
-        currentStep = 1;
-        invalidate();
-    }
-
-    public void complete() {
-        currentStep = stepCount;
         invalidate();
     }
 
@@ -231,7 +383,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageSelected(int position) {
-        setCurrentStep(position + 1);
+        setCurrentStep(position);
     }
 
     @Override
