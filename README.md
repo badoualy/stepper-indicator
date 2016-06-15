@@ -31,6 +31,8 @@ Now go do some awesome stuff!
 
 Usage
 ----------------
+> The library is compatible until API 7 for convenience, but animations are only activated from api 11 and up
+
 ```xml
 <com.badoualy.stepperindicator.StepperIndicator
     android:layout_width="match_parent"
@@ -42,6 +44,7 @@ Attributes:
 
 | Name                   | Description                                         | Default value   |
 |------------------------|-----------------------------------------------------|-----------------|
+| stpi_animDuration      | duration of the line tracing animation              | 250 ms          |
 | stpi_stepCount         | number of pages/steps                               |                 |
 | stpi_circleColor       | color of the stroke circle                          | #b3bdc2 (grey)  |
 | stpi_circleRadius      | radius of the circle                                | 10dp            |
