@@ -27,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
         StepperIndicator indicator = (StepperIndicator) findViewById(R.id.stepper_indicator);
         assert indicator != null;
-        indicator.setViewPager(pager, pager.getAdapter().getCount() - 1);
+        // We keep last page for a "finishing" page
+        indicator.setViewPager(pager, true);
     }
 
     public static class PageFragment extends Fragment {
