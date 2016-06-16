@@ -268,7 +268,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      */
     @UiThread
     public void setCurrentStep(int currentStep) {
-        if (currentStep < 0 || currentStep >= stepCount)
+        if (currentStep < 0 || currentStep > stepCount)
             throw new IllegalArgumentException("Invalid step value " + currentStep);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
