@@ -16,13 +16,11 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://jitpack.io" }
     }
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.12'
+    gradleVersion = '2.14'
 }
 
 task clean(type: Delete) {
