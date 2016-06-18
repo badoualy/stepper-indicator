@@ -2,7 +2,7 @@
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-stepper--indicator-green.svg?style=true)](https://android-arsenal.com/details/1/3711)
 
 # ![](https://github.com/badoualy/stepper-indicator/blob/master/sample/src/main/res/mipmap-mdpi/ic_launcher.png) Stepper indicator
-> ### Designed by the great https://dribbble.com/LeslyPyram :)
+> ### Designed by the awesome https://dribbble.com/LeslyPyram :)
 
 <img src="https://github.com/badoualy/stepper-indicator/blob/master/ART/screen.gif" width="300">
 
