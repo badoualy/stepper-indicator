@@ -24,7 +24,7 @@ repositories {
 
 Then, add the library dependency:
 ```gradle
-compile 'com.github.badoualy:stepper-indicator:1.0.0'
+compile 'com.github.badoualy:stepper-indicator:1.0.2'
 ```
 
 Now go do some awesome stuff!
@@ -70,7 +70,7 @@ Licence
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015 Yannick Badoual
+Copyright (c) 2016 Yannick Badoual
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

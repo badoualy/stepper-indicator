@@ -20,6 +20,7 @@ import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
@@ -27,38 +28,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
+/**
+ * Step indicator that can be used with (or without) a {@link ViewPager} to display current progress through an Onboarding or any process in
+ * multiple steps.
+ * The default main primary color if not specified in the XML attributes will use the theme primary color defined via {@link R.attr.colorPrimary}.
+ * If this view is used on a device below API 11, animations will not be used.
+ */
 public class StepperIndicator extends View implements ViewPager.OnPageChangeListener {
 
+    /** Duration of the line drawing animation (ms) */
     private static final int DEFAULT_ANIMATION_DURATION = 250;
+    /** Max multiplier of the radius when a step is being animated to the "done" state before going to it's normal radius */
     private static final float EXPAND_MARK = 1.3f;
 
+    /** Paint used to draw grey circle */
     private Paint circlePaint;
+    // Paint used to draw the different line states
     private Paint linePaint, lineDonePaint, lineDoneAnimatedPaint;
+    /** Paint used to draw the indicator circle for the current and cleared steps */
     private Paint indicatorPaint;
 
+    /** List of {@link Path} for each line between steps */
     private List<Path> linePathList = new ArrayList<>();
     private float animProgress;
     private float animIndicatorRadius;
     private float animCheckRadius;
+    /** "Constant" size of the lines between steps */
     private float lineLength;
 
+    // Values retrieved from xml (or default values)
     private float circleRadius;
     private float checkRadius;
     private float indicatorRadius;
     private float lineMargin;
     private int animDuration;
 
+    // Current state
     private int stepCount;
     private int currentStep;
+    private int previousStep;
 
+    // X position of each step indicator's center
     private float[] indicators;
 
     private ViewPager pager;
     private Bitmap doneIcon;
 
+    // Running animations
     private AnimatorSet animatorSet;
     private ObjectAnimator lineAnimator, indicatorAnimator, checkAnimator;
-    private int previousStep;
 
     public StepperIndicator(Context context) {
         this(context, null);
@@ -87,13 +105,15 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         float defaultCircleRadius = resources.getDimension(R.dimen.stpi_default_circle_radius);
         float defaultCircleStrokeWidth = resources.getDimension(R.dimen.stpi_default_circle_stroke_width);
 
-        int defaultIndicatorColor = ContextCompat.getColor(context, R.color.stpi_default_indicator_color);
+        int defaultPrimaryColor = getPrimaryColor(context);
+
+        int defaultIndicatorColor = defaultPrimaryColor;
         float defaultIndicatorRadius = resources.getDimension(R.dimen.stpi_default_indicator_radius);
 
         float defaultLineStrokeWidth = resources.getDimension(R.dimen.stpi_default_line_stroke_width);
         float defaultLineMargin = resources.getDimension(R.dimen.stpi_default_line_margin);
         int defaultLineColor = ContextCompat.getColor(context, R.color.stpi_default_line_color);
-        int defaultLineDoneColor = ContextCompat.getColor(context, R.color.stpi_default_line_done_color);
+        int defaultLineDoneColor = defaultPrimaryColor;
 
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.StepperIndicator, defStyleAttr, 0);
 
@@ -134,8 +154,15 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
         doneIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_done_white_18dp);
 
+        // Display at least 1 cleared step for preview in XML editor
         if (isInEditMode())
             currentStep = Math.max((int) Math.ceil(stepCount / 2f), 1);
+    }
+
+    public static int getPrimaryColor(final Context context) {
+        final TypedValue value = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
+        return value.data;
     }
 
     @Override
@@ -187,6 +214,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
         for (int i = 0; i < indicators.length; i++) {
             final float indicator = indicators[i];
+
+            // We draw the "done" check if previous step, or if we are going back (if going back, animated value will reduce radius to 0)
             boolean drawCheck = i < currentStep || (drawFromNext && i == currentStep);
 
             // Draw back circle
@@ -201,10 +230,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             // Draw check mark
             if (drawCheck) {
                 float radius = checkRadius;
+                // Use animated radius value?
                 if ((i == previousStep && drawToNext)
                         || (i == currentStep && drawFromNext))
                     radius = animCheckRadius;
                 canvas.drawCircle(indicator, centerY, radius, indicatorPaint);
+
+                // Draw check bitmap
                 if (!isInEditMode()) {
                     if ((i != previousStep && i != currentStep) || (!inCheckAnimation && !(i == currentStep && !inAnimation)))
                         canvas.drawBitmap(doneIcon, indicator - (doneIcon.getWidth() / 2), centerY - (doneIcon.getHeight() / 2), null);
@@ -271,15 +303,19 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         if (currentStep < 0 || currentStep >= stepCount)
             throw new IllegalArgumentException("Invalid step value " + currentStep);
 
+        previousStep = this.currentStep;
+        this.currentStep = currentStep;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // Cancel any running animations
             if (animatorSet != null)
                 animatorSet.cancel();
             animatorSet = null;
             lineAnimator = null;
             indicatorAnimator = null;
 
-            if (currentStep == this.currentStep + 1) {
-                previousStep = this.currentStep;
+            if (currentStep == previousStep + 1) {
+                // Going to next step
                 animatorSet = new AnimatorSet();
 
                 // First, draw line to new
@@ -295,8 +331,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                         .ofFloat(StepperIndicator.this, "animIndicatorRadius", 0f, indicatorRadius * 1.4f, indicatorRadius);
 
                 animatorSet.play(lineAnimator).with(checkAnimator).before(indicatorAnimator);
-            } else if (currentStep == this.currentStep - 1) {
-                previousStep = this.currentStep;
+            } else if (currentStep == previousStep - 1) {
+                // Going back to previous step
                 animatorSet = new AnimatorSet();
 
                 // First, pop out current step indicator
@@ -315,8 +351,10 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             }
 
             if (animatorSet != null) {
+                // Max 500 ms for the animation
                 lineAnimator.setDuration(Math.min(500, animDuration));
                 lineAnimator.setInterpolator(new DecelerateInterpolator());
+                // Other animations will run 2 times faster that line animation
                 indicatorAnimator.setDuration(lineAnimator.getDuration() / 2);
                 checkAnimator.setDuration(lineAnimator.getDuration() / 2);
 
@@ -324,28 +362,30 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             }
         }
 
-        this.currentStep = currentStep;
         invalidate();
     }
 
-    /** DO NOT CALL, used by animation to draw line */
+    /** DO NOT CALL, used by animation */
     public void setAnimProgress(float animProgress) {
         this.animProgress = animProgress;
         lineDoneAnimatedPaint.setPathEffect(createPathEffect(lineLength, animProgress, 0.0f));
         invalidate();
     }
 
+    /** DO NOT CALL, used by animation */
     public void setAnimIndicatorRadius(float animIndicatorRadius) {
         this.animIndicatorRadius = animIndicatorRadius;
         invalidate();
     }
 
+    /** DO NOT CALL, used by animation */
     public void setAnimCheckRadius(float animCheckRadius) {
         this.animCheckRadius = animCheckRadius;
         invalidate();
     }
 
     private static PathEffect createPathEffect(float pathLength, float phase, float offset) {
+        // Create a PathEffect to set on a Paint to only draw some part of the line
         return new DashPathEffect(new float[]{pathLength, pathLength},
                                   Math.max(phase * pathLength, offset));
     }
