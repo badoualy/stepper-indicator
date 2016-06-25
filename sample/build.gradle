@@ -10,8 +10,8 @@ android {
         applicationId "com.badoualy.stepperindicator.sample"
         minSdkVersion 10
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 101
+        versionName "1.0.1"
     }
     buildTypes {
         release {
@@ -29,5 +29,5 @@ dependencies {
     if (compileLocal)
         compile project(':library')
     else
-        compile 'com.github.badoualy:stepper-indicator:1.0.0'
+        compile 'com.github.badoualy:stepper-indicator:1.0.1'
 }

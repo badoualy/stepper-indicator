@@ -296,11 +296,11 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * Sets the current step
      *
-     * @param currentStep a value between 0 (inclusive) and stepCount (exclusive)
+     * @param currentStep a value between 0 (inclusive) and stepCount (inclusive)
      */
     @UiThread
     public void setCurrentStep(int currentStep) {
-        if (currentStep < 0 || currentStep >= stepCount)
+        if (currentStep < 0 || currentStep > stepCount)
             throw new IllegalArgumentException("Invalid step value " + currentStep);
 
         previousStep = this.currentStep;
@@ -399,8 +399,20 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * Sets the pager associated with this indicator
      *
+     * @param pager        viewpager to attach
+     * @param keepLastPage true if should not create an indicator for the last page, to use it as the final page
+     */
+    public void setViewPager(ViewPager pager, boolean keepLastPage) {
+        if (pager.getAdapter() == null)
+            throw new IllegalStateException("ViewPager does not have adapter instance.");
+        setViewPager(pager, pager.getAdapter().getCount() - (keepLastPage ? 1 : 0));
+    }
+
+    /**
+     * Sets the pager associated with this indicator
+     *
      * @param pager     viewpager to attach
-     * @param stepCount the real page count to display (use this if you are using looped viewpager)
+     * @param stepCount the real page count to display (use this if you are using looped viewpager to indicate the real number of pages)
      */
     public void setViewPager(ViewPager pager, int stepCount) {
         if (this.pager == pager)
