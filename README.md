@@ -24,7 +24,7 @@ repositories {
 
 Then, add the library dependency:
 ```gradle
-compile 'com.github.badoualy:stepper-indicator:1.0.2'
+compile 'com.github.badoualy:stepper-indicator:1.0.3'
 ```
 
 Now go do some awesome stuff!
@@ -54,6 +54,7 @@ Attributes:
 | stpi_lineDoneColor     | color of a line when step is done                   | #00b47c (green) |
 | stpi_lineStrokeWidth   | width of the line stroke                            | 2dp             |
 | stpi_lineMargin        | margin at each side of the line                     | 5dp             |
+| stpi_showDoneIcon      | show the done check icon or not                     | true            |
 
 ```java
 indicator.setViewPager(pager);
