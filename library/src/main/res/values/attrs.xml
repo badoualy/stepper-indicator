@@ -15,5 +15,7 @@
         <attr name="stpi_lineDoneColor" format="color"/>
         <attr name="stpi_lineStrokeWidth" format="dimension"/>
         <attr name="stpi_lineMargin" format="dimension"/>
+
+        <attr name="stpi_showDoneIcon" format="boolean"/>
     </declare-styleable>
 </resources>

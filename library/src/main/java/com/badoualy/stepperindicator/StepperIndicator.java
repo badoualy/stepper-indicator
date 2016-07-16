@@ -73,6 +73,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     private ViewPager pager;
     private Bitmap doneIcon;
+    private boolean showDoneIcon;
 
     // Running animations
     private AnimatorSet animatorSet;
@@ -149,10 +150,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
         setStepCount(a.getInteger(R.styleable.StepperIndicator_stpi_stepCount, 2));
         animDuration = a.getInteger(R.styleable.StepperIndicator_stpi_animDuration, DEFAULT_ANIMATION_DURATION);
+        showDoneIcon = a.getBoolean(R.styleable.StepperIndicator_stpi_showDoneIcon, true);
 
         a.recycle();
 
-        doneIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_done_white_18dp);
+        if (showDoneIcon){
+            doneIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_done_white_18dp);
+        }
 
         // Display at least 1 cleared step for preview in XML editor
         if (isInEditMode())
@@ -251,7 +255,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                 canvas.drawCircle(indicator, centerY, radius, indicatorPaint);
 
                 // Draw check bitmap
-                if (!isInEditMode()) {
+                if (!isInEditMode() && showDoneIcon) {
                     if ((i != previousStep && i != currentStep) || (!inCheckAnimation && !(i == currentStep && !inAnimation)))
                         canvas.drawBitmap(doneIcon, indicator - (doneIcon.getWidth() / 2), centerY - (doneIcon.getHeight() / 2), null);
                 }
