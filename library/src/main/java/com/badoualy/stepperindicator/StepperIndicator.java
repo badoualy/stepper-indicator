@@ -154,7 +154,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
         a.recycle();
 
-        if (showDoneIcon){
+        if (showDoneIcon) {
+            // TODO replace with drawable
             doneIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_done_white_18dp);
         }
 
@@ -172,12 +173,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             color = t.data;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // If using native primaryColor (SDK >21)
-            TypedArray t = context.obtainStyledAttributes(new int[]{android.R.attr.colorAccent});
+            TypedArray t = context.obtainStyledAttributes(new int[]{android.R.attr.colorPrimary});
             color = t.getColor(0, ContextCompat.getColor(context, R.color.stpi_default_primary_color));
             t.recycle();
         } else {
-            // Use default color
-            color = ContextCompat.getColor(context, R.color.stpi_default_primary_color);
+            TypedArray t = context.obtainStyledAttributes(new int[]{R.attr.colorPrimary});
+            color = t.getColor(0, ContextCompat.getColor(context, R.color.stpi_default_primary_color));
+            t.recycle();
         }
 
         return color;
