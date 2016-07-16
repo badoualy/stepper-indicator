@@ -160,9 +160,23 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     }
 
     public static int getPrimaryColor(final Context context) {
-        final TypedValue value = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
-        return value.data;
+        int color = context.getResources().getIdentifier("colorPrimary", "attr", context.getPackageName());
+        if (color != 0) {
+            // If using support library v7 primaryColor
+            TypedValue t = new TypedValue();
+            context.getTheme().resolveAttribute(color, t, true);
+            color = t.data;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // If using native primaryColor (SDK >21)
+            TypedArray t = context.obtainStyledAttributes(new int[]{android.R.attr.colorAccent});
+            color = t.getColor(0, ContextCompat.getColor(context, R.color.stpi_default_primary_color));
+            t.recycle();
+        } else {
+            // Use default color
+            color = ContextCompat.getColor(context, R.color.stpi_default_primary_color);
+        }
+
+        return color;
     }
 
     @Override
