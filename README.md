@@ -31,7 +31,6 @@ Now go do some awesome stuff!
 
 Usage
 ----------------
-> The library is compatible until API 7 for convenience, but animations are only activated from api 11 and up
 
 ```xml
 <com.badoualy.stepperindicator.StepperIndicator
