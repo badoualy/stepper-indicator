@@ -13,6 +13,7 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -20,7 +21,10 @@ import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
@@ -32,10 +36,8 @@ import java.util.List;
  * Step indicator that can be used with (or without) a {@link ViewPager} to display current progress through an Onboarding or any process in
  * multiple steps.
  * The default main primary color if not specified in the XML attributes will use the theme primary color defined via {@link R.attr.colorPrimary}.
- * If this view is used on a device below API 11, animations will not be used.
- * 
  * <p>
- * Updated by Ionut Negru on 08/08/16.
+ * Updated by Ionut Negru on 08/08/16 to add the stepClickListener feature.
  * </p>
  */
 public class StepperIndicator extends View implements ViewPager.OnPageChangeListener {
@@ -54,6 +56,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     /** List of {@link Path} for each line between steps */
     private List<Path> linePathList = new ArrayList<>();
+    /** Click areas for each of the steps supported by the StepperIndicator widget. */
+    private List<RectF> stepsClickAreas;
     private float animProgress;
     private float animIndicatorRadius;
     private float animCheckRadius;
@@ -71,23 +75,20 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * Custom step click listener which will notify any component which sets an listener of any events (touch events)
      * that happen regarding the steps widget.
      */
-    private List<OnStepClickListener> mOnStepClickListeners = new ArrayList<>(0);
-    
+    private final List<OnStepClickListener> onStepClickListeners = new ArrayList<>(0);
+
     /**
-     * Click areas for each of the steps supported by the StepperIndicator widget.
-     */
-    private List<RectF> stepsClickAreas;
-    
-        /**
      * Custom gesture listener though which all the touch events are propagated.
      * <p>
      * The whole purpose of this listener is to correctly detect which step was touched by the user and notify
-     * the component which registered to receive event updates through {@link #setOnStepClickListener(OnStepClickListener)}
+     * the component which registered to receive event updates through {@link #addOnStepClickListener(OnStepClickListener)}
      * </p>
      */
-    private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
+            if (onStepClickListeners.isEmpty())
+                return super.onSingleTapConfirmed(e);
             float xCord = e.getX();
             float yCord = e.getY();
             Log.d("StepperIndicator", "onSingleTapConfirmed: clicked = [" + xCord + ", " + yCord + "]");
@@ -105,8 +106,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             }
 
             // If the clicked step is valid and an listener was setup - send the event
-            if (clickedStep != -1 && !mOnStepClickListeners.isEmpty()) {
-                for (OnStepClickListener listener : mOnStepClickListeners) {
+            if (clickedStep != -1) {
+                for (OnStepClickListener listener : onStepClickListeners) {
                     listener.onStepClicked(clickedStep);
                 }
             }
@@ -114,12 +115,12 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             return super.onSingleTapConfirmed(e);
         }
     };
-    
+
     /**
      * The gesture detector at which all the touch events will be propagated to.
      */
-    private GestureDetector mGestureDetector;
-    
+    private GestureDetector gestureDetector;
+
     // Current state
     private static final int STEP_COUNT_INVALID = -1;
     private int stepCount;
@@ -221,15 +222,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         if (isInEditMode()) {
             currentStep = Math.max((int) Math.ceil(stepCount / 2f), 1);
         }
-            
-        mGestureDetector = new GestureDetector(getContext(), mGestureListener);
-    }
-    
-     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        // Dispatch the touch events to our custom gesture detector.
-        mGestureDetector.onTouchEvent(event);
-        return true; // we handle the event in the gesture detector
+
+        gestureDetector = new GestureDetector(getContext(), gestureListener);
     }
 
     public static int getPrimaryColor(final Context context) {
@@ -256,10 +250,11 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         compute(); // for setting up the indicator based on the new position
-        computeStepsClickAreas(); // update the position of the steps click area also
     }
 
     private void compute() {
+        computeStepsClickAreas(); // update the position of the steps click area also
+
         indicators = new float[stepCount];
         linePathList.clear();
 
@@ -280,26 +275,22 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             linePathList.add(linePath);
         }
     }
-    
+
     /**
      * <p>
      * Calculate the area for each step. This ensure the correct step is detected when an click event is detected.
      * </p>
-     * <p>
-     * Whenever {@link #compute()} method is called, make sure to call this method also so that the steps click
-     * area is updated.
-     * </p>
      */
-    public void computeStepsClickAreas() {
+    private void computeStepsClickAreas() {
         if (stepCount == STEP_COUNT_INVALID) {
             throw new IllegalArgumentException("stepCount wasn't setup yet. Make sure you call setStepCount() " +
-                                               "before computing the steps click area!");
+                                                       "before computing the steps click area!");
         }
 
         if (null == indicators) {
             throw new IllegalArgumentException("indicators wasn't setup yet. Make sure the indicators are " +
-                                               "initialized and setup correctly before trying to compute the click " +
-                                               "area for each step!");
+                                                       "initialized and setup correctly before trying to compute the click " +
+                                                       "area for each step!");
         }
 
         // Initialize the list for the steps click area
@@ -404,13 +395,19 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         setMeasuredDimension(width, height);
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // Dispatch the touch events to our custom gesture detector.
+        gestureDetector.onTouchEvent(event);
+        return true; // we handle the event in the gesture detector
+    }
+
     public void setStepCount(int stepCount) {
         if (stepCount < 2)
             throw new IllegalArgumentException("stepCount must be >= 2");
         this.stepCount = stepCount;
         currentStep = 0;
         compute();
-        computeStepsClickAreas();
         invalidate();
     }
 
@@ -556,26 +553,24 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         pager.addOnPageChangeListener(this);
         invalidate();
     }
-    
-        /**
+
+    /**
      * Add the {@link OnStepClickListener} to the list of listeners which will receive events when an step is clicked.
      *
-     * @param listener
-     *         The {@link OnStepClickListener} which will be added
+     * @param listener The {@link OnStepClickListener} which will be added
      */
     public void addOnStepClickListener(OnStepClickListener listener) {
-        mOnStepClickListeners.add(listener);
+        onStepClickListeners.add(listener);
     }
 
     /**
      * Remove the specified {@link OnStepClickListener} from the list of listeners which will receive events when an
      * step is clicked.
      *
-     * @param listener
-     *         The {@link OnStepClickListener} which will be removed
+     * @param listener The {@link OnStepClickListener} which will be removed
      */
     public void removeOnStepClickListener(OnStepClickListener listener) {
-        mOnStepClickListeners.remove(listener);
+        onStepClickListeners.remove(listener);
     }
 
     /**
@@ -584,7 +579,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * No more events will be propagated.
      */
     public void clearOnStepClickListeners() {
-        mOnStepClickListeners.clear();
+        onStepClickListeners.clear();
     }
 
     @Override
@@ -617,7 +612,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         savedState.currentStep = currentStep;
         return savedState;
     }
-    
+
     /**
      * Contract used by the StepperIndicator widget to notify any listener of steps interaction events.
      */
@@ -625,8 +620,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         /**
          * Step was clicked
          *
-         * @param step
-         *         The step position which was clicked. (starts from 0, as the ViewPager bound to the widget)
+         * @param step The step position which was clicked. (starts from 0, as the ViewPager bound to the widget)
          */
         void onStepClicked(int step);
     }
