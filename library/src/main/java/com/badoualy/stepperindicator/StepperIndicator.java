@@ -575,7 +575,6 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     /**
      * Remove all {@link OnStepClickListener} listeners from the StepperIndicator widget.
-     * <br/>
      * No more events will be propagated.
      */
     public void clearOnStepClickListeners() {
