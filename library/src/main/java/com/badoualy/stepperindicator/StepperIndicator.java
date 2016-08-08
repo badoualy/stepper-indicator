@@ -94,18 +94,21 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
             // TODO: 05/08/16 Improve look up for the clicked step - binary search could be an option
 
-            int clickedStep = -1;
-            for (int i = 0; i < stepsClickAreas.size(); i++) {
-                if (stepsClickAreas.get(i).contains(xCord, yCord)) {
-                    Log.d("StepperIndicator", "onSingleTapConfirmed: step #" + i + " clicked!");
-                    clickedStep = i;
-                    // Stop as we found the step which was clicked
-                    break;
+           int clickedStep = -1;
+
+            if (isOnStepClickListenerAvailable()) {
+                for (int i = 0; i < stepsClickAreas.size(); i++) {
+                    if (stepsClickAreas.get(i).contains(xCord, yCord)) {
+                        Log.d("StepperIndicator", "onSingleTapConfirmed: step #" + i + " clicked!");
+                        clickedStep = i;
+                        // Stop as we found the step which was clicked
+                        break;
+                    }
                 }
             }
 
             // If the clicked step is valid and an listener was setup - send the event
-            if (clickedStep != -1 && !mOnStepClickListeners.isEmpty()) {
+            if (clickedStep != -1) {
                 for (OnStepClickListener listener : mOnStepClickListeners) {
                     listener.onStepClicked(clickedStep);
                 }
@@ -585,6 +588,15 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      */
     public void clearOnStepClickListeners() {
         mOnStepClickListeners.clear();
+    }
+    
+    /**
+     * Check if the widget has any valid {@link OnStepClickListener} listener set for receiving events from the steps.
+     *
+     * @return {@code true} if there are listeners registered, {@code false} otherwise.
+     */
+    public boolean isOnStepClickListenerAvailable() {
+        return null != mOnStepClickListeners && !mOnStepClickListeners.isEmpty();
     }
 
     @Override
