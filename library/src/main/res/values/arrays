@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Array of colors which should be used for the Stepper widget -->
+    <integer-array name="stpi_steps_colors">
+        <item>@color/turquoise_medium</item>
+        <item>@color/golden_tainoi</item>
+        <item>@color/crusta</item>
+        <item>@color/blue</item>
+    </integer-array>
+</resources>
