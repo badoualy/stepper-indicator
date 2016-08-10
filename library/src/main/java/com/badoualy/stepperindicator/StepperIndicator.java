@@ -682,30 +682,10 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         for (int i = 0; i < mIndicators.length - 1; i++) {
             float position = ((mIndicators[i] + mIndicators[i + 1]) / 2) - mLineLength / 2;
             final Path linePath = new Path();
-            int lineY = (getMeasuredHeight() - getBottomIndicatorHeight()) / 2;
+            int lineY = getStepCenterY();
             linePath.moveTo(position, lineY);
             linePath.lineTo(position + mLineLength, lineY);
             mLinePathList.add(linePath);
-        }
-    }
-
-    /**
-     * Get the height of the bottom indicator.
-     * <p>
-     * The height will include the height necessary for correctly drawing the bottom indicator plus the margin
-     * set in XML (or the default one).
-     * </p>
-     * <p>
-     * If the widget isn't set to display the bottom indicator this will method will always return {@code 0}
-     * </p>
-     *
-     * @return The height of the bottom indicator in pixels or {@code 0}.
-     */
-    private int getBottomIndicatorHeight() {
-        if (mUseBottomIndicator) {
-            return (int) (mBottomIndicatorHeight + mBottomIndicatorMarginTop);
-        } else {
-            return 0;
         }
     }
 
@@ -737,21 +717,46 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         for (float indicator : mIndicators) {
             // Get the indicator position
             // Calculate the bounds for the step
-            float left = indicator - mCircleRadius;
-            float right = indicator + mCircleRadius;
-            float top = getTop();
-            float bottom = getBottom();
+            float left = indicator - mCircleRadius * 2;
+            float right = indicator + mCircleRadius * 2;
+            float top = getStepCenterY() - mCircleRadius * 2;
+            float bottom = getStepCenterY() + mCircleRadius + getBottomIndicatorHeight();
 
             // Store the click area for the step
             RectF area = new RectF(left, top, right, bottom);
             mStepsClickAreas.add(area);
         }
     }
+    
+    /**
+     * Get the height of the bottom indicator.
+     * <p>
+     * The height will include the height necessary for correctly drawing the bottom indicator plus the margin
+     * set in XML (or the default one).
+     * </p>
+     * <p>
+     * If the widget isn't set to display the bottom indicator this will method will always return {@code 0}
+     * </p>
+     *
+     * @return The height of the bottom indicator in pixels or {@code 0}.
+     */
+    private int getBottomIndicatorHeight() {
+        if (mUseBottomIndicator) {
+            return (int) (mBottomIndicatorHeight + mBottomIndicatorMarginTop);
+        } else {
+            return 0;
+        }
+    }
+    
+    private float getStepCenterY() {
+        return (getMeasuredHeight() - getBottomIndicatorHeight()) / 2f;
+    }
+
 
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onDraw(Canvas canvas) {
-        float centerY = (getMeasuredHeight() - getBottomIndicatorHeight()) / 2f;
+        float centerY = getStepCenterY();
 
         // Currently Drawing animation from step n-1 to n, or back from n+1 to n
         boolean inAnimation = false;
