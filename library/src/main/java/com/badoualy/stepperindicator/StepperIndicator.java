@@ -691,16 +691,10 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         float centerY = getStepCenterY();
 
         // Currently Drawing animation from step n-1 to n, or back from n+1 to n
-        boolean inAnimation = false;
-        boolean inLineAnimation = false;
-        boolean inIndicatorAnimation = false;
-        boolean inCheckAnimation = false;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            inAnimation = animatorSet != null && animatorSet.isRunning();
-            inLineAnimation = lineAnimator != null && lineAnimator.isRunning();
-            inIndicatorAnimation = indicatorAnimator != null && indicatorAnimator.isRunning();
-            inCheckAnimation = checkAnimator != null && checkAnimator.isRunning();
-        }
+        boolean inAnimation = animatorSet != null && animatorSet.isRunning();
+        boolean inLineAnimation = lineAnimator != null && lineAnimator.isRunning();
+        boolean inIndicatorAnimation = indicatorAnimator != null && indicatorAnimator.isRunning();
+        boolean inCheckAnimation = checkAnimator != null && checkAnimator.isRunning();
 
         boolean drawToNext = previousStep == currentStep - 1;
         boolean drawFromNext = previousStep == currentStep + 1;
@@ -974,8 +968,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
                 // Finally, pop out check mark to display step indicator
                 animCheckRadius = checkRadius;
-                checkAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animCheckRadius", checkRadius,
-                                                       showStepTextNumber ? 0f : indicatorRadius);
+                checkAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animCheckRadius", checkRadius, indicatorRadius);
 
                 animatorSet.playSequentially(indicatorAnimator, lineAnimator, checkAnimator);
             }
