@@ -253,8 +253,6 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     }
 
     private void compute() {
-        computeStepsClickAreas(); // update the position of the steps click area also
-
         indicators = new float[stepCount];
         linePathList.clear();
 
@@ -274,6 +272,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             linePath.lineTo(position + lineLength, getMeasuredHeight() / 2);
             linePathList.add(linePath);
         }
+
+        computeStepsClickAreas(); // update the position of the steps click area also
     }
 
     /**
