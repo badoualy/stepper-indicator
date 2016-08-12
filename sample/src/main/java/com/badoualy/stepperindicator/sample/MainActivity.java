@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        final ViewPager pager = (ViewPager) findViewById(R.id.pager);
         assert pager != null;
         pager.setAdapter(new EmptyPagerAdapter(getSupportFragmentManager()));
 
@@ -29,6 +29,13 @@ public class MainActivity extends AppCompatActivity {
         assert indicator != null;
         // We keep last page for a "finishing" page
         indicator.setViewPager(pager, true);
+
+        indicator.addOnStepClickListener(new StepperIndicator.OnStepClickListener() {
+            @Override
+            public void onStepClicked(int step) {
+                pager.setCurrentItem(step, true);
+            }
+        });
     }
 
     public static class PageFragment extends Fragment {

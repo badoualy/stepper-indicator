@@ -3,10 +3,4 @@
     <color name="stpi_default_circle_color">#b3bdc2</color>
     <color name="stpi_default_primary_color">#00b47c</color>
     <color name="stpi_default_line_color">#b3bdc2</color>
-    
-    <!-- Demo colors -->
-    <color name="turquoise_medium">#FF4ECDC4</color>
-    <color name="golden_tainoi">#FFFFBD55</color>
-    <color name="crusta">#FFFB8A61</color>
-    <color name="blue">#FF20A7C7</color>
 </resources>

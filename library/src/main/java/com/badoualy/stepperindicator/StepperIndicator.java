@@ -35,20 +35,10 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * <p>Step indicator that can be used with (or without) a {@link ViewPager} to display current progress through an
- * Onboarding or any process in
- * multiple steps.
- * </p>
- * <p>
- * The default main primary color if not specified in the XML attributes will use the theme primary color defined via
- * {@code colorPrimary} attribute.
- * </p>
- * <p>
- * If this view is used on a device below API 11, animations will not be used.
- * </p>
- * <p>
- * Usage of stepper custom attributes:
- * </p>
+ * <p>Step indicator that can be used with (or without) a {@link ViewPager} to display current progress through an Onboarding or any process in multiple steps. </p>
+ * <p> The default main primary color if not specified in the XML attributes will use the theme primary color defined via {@code colorPrimary} attribute. </p>
+ * <p> If this view is used on a device below API 11, animations will not be used. </p>
+ * <p> Usage of stepper custom attributes: </p>
  * <table><thead>
  * <tr>
  * <th>Name</th>
@@ -160,40 +150,25 @@ import java.util.Random;
  * </tr>
  * </tbody></table>
  *
- * <p>
- * Updated by Ionut Negru on 08/08/16 to add the stepClickListener feature.
- * Updated by Ionut Negru on 09/08/16 to add support for customizations like: multiple colors, step text number, bottom indicator.
- * </p>
+ * <p> Updated by Ionut Negru on 08/08/16 to add the stepClickListener feature.</p>
+ * <p> Updated by Ionut Negru on 09/08/16 to add support for customizations like: multiple colors, step text number, bottom indicator.</p>
  */
- @SuppressWarnings("unused")
+@SuppressWarnings("unused")
 public class StepperIndicator extends View implements ViewPager.OnPageChangeListener {
 
-    /**
-     * TAG for debugging purposes.
-     */
-    private static final String TAG_DEBUG = "StepperIndicator";
+    private static final String TAG = "StepperIndicator";
 
     /** Duration of the line drawing animation (ms) */
     private static final int DEFAULT_ANIMATION_DURATION = 250;
-    /**
-     * Max multiplier of the radius when a step is being animated to the "done" state before going to it's normal
-     * radius
-     */
+    /** Max multiplier of the radius when a step is being animated to the "done" state before going to it's normal radius */
     private static final float EXPAND_MARK = 1.3f;
 
-    /**
-     * Value for invalid step.
-     */
     private static final int STEP_INVALID = -1;
 
-    /**
-     * Paint used to draw grey circle
-     */
-    private Paint mCirclePaint;
-    /**
-     * List of {@link Paint} objects used to draw the circle for each step.
-     */
-    private List<Paint> mStepsCirclePaintList;
+    /** Paint used to draw circle */
+    private Paint circlePaint;
+    /** List of {@link Paint} objects used to draw the circle for each step. */
+    private List<Paint> stepsCirclePaintList;
 
     /**
      * The radius for the circle which describes an step.
@@ -201,7 +176,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * This is either declared via XML or default is used.
      * </p>
      */
-    private float mCircleRadius;
+    private float circleRadius;
 
     /**
      * <p>
@@ -209,75 +184,49 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * with bullet.
      * </p>
      */
-    private boolean mShowStepTextNumber;
+    private boolean showStepTextNumber;
 
-    /**
-     * Paint used to draw the number indicator for all steps.
-     *
-     * @see #mShowStepTextNumber
-     */
-    private Paint mStepTextNumberPaint;
+    /** Paint used to draw the number indicator for all steps. */
+    private Paint stepTextNumberPaint;
 
-    /**
-     * List of {@link Paint} objects used to draw the number indicator for each step.
-     *
-     * @see #mShowStepTextNumber
-     */
-    private List<Paint> mStepsTextNumberPaintList;
+    /** List of {@link Paint} objects used to draw the number indicator for each step. */
+    private List<Paint> stepsTextNumberPaintList;
 
-    /**
-     * Paint used to draw the indicator circle for the current and cleared steps
-     */
-    private Paint mIndicatorPaint;
+    /** Paint used to draw the indicator circle for the current and cleared steps */
+    private Paint indicatorPaint;
 
     /**
      * List of {@link Paint} objects used by each step indicating the current and cleared steps.
-     * <p>
-     * If this is set, it will override the default.
-     * </p>
+     * <p> If this is set, it will override the default. </p>
      */
-    private List<Paint> mStepsIndicatorPaintList;
+    private List<Paint> stepsIndicatorPaintList;
 
-    /**
-     * Paint used to draw the line between steps - as default.
-     */
-    private Paint mLinePaint;
+    /** Paint used to draw the line between steps - as default. */
+    private Paint linePaint;
 
-    /**
-     * Paint used to draw the line between steps when done.
-     */
-    private Paint mLineDonePaint;
+    /** Paint used to draw the line between steps when done. */
+    private Paint lineDonePaint;
 
-    /**
-     * Paint used to draw the line between steps when animated.
-     */
-    private Paint mLineDoneAnimatedPaint;
+    /** Paint used to draw the line between steps when animated. */
+    private Paint lineDoneAnimatedPaint;
 
-    /**
-     * List of {@link Path} for each line between steps
-     */
-    private List<Path> mLinePathList = new ArrayList<>();
+    /** List of {@link Path} for each line between steps */
+    private List<Path> linePathList = new ArrayList<>();
 
     /**
      * The progress of the animation.
-     * <p>
-     * <font color="red">DO NOT DELETE OR RENAME</font>: Will be used by animations logic.
-     * </p>
+     * <p><font color="red">DO NOT DELETE OR RENAME</font>: Will be used by animations logic.</p>
      */
     @SuppressWarnings("unused")
     private float animProgress;
     /**
      * The radius for the animated indicator.
-     * <p>
-     * <font color="red">DO NOT DELETE OR RENAME</font>: Will be used by animations logic.
-     * </p>
+     * <p><font color="red">DO NOT DELETE OR RENAME</font>: Will be used by animations logic.</p>
      */
     private float animIndicatorRadius;
     /**
      * The radius for the animated check mark.
-     * <p>
-     * <font color="red">DO NOT DELETE OR RENAME</font>: Will be used by animations logic.
-     * </p>
+     * <p><font color="red">DO NOT DELETE OR RENAME</font>: Will be used by animations logic.</p>
      */
     private float animCheckRadius;
 
@@ -288,62 +237,52 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * disabled for that flow.
      * </p>
      */
-    private boolean mUseBottomIndicator;
-    /**
-     * The top margin of the bottom indicator.
-     */
-    private float mBottomIndicatorMarginTop = 0;
-    /**
-     * The width of the bottom indicator.
-     */
-    private float mBottomIndicatorWidth = 0;
-    /**
-     * The height of the bottom indicator.
-     */
-    private float mBottomIndicatorHeight = 0;
-    /**
-     * Flag indicating if the bottom indicator should use the same colors as the steps.
-     */
-    private boolean mUseBottomIndicatorWithStepColors;
+    private boolean useBottomIndicator;
+    /** The top margin of the bottom indicator. */
+    private float bottomIndicatorMarginTop = 0;
+    /** The width of the bottom indicator. */
+    private float bottomIndicatorWidth = 0;
+    /** The height of the bottom indicator. */
+    private float bottomIndicatorHeight = 0;
+    /** Flag indicating if the bottom indicator should use the same colors as the steps. */
+    private boolean useBottomIndicatorWithStepColors;
 
-    /**
-     * "Constant" size of the lines between steps
-     */
-    private float mLineLength;
+    /** "Constant" size of the lines between steps */
+    private float lineLength;
 
     // Values retrieved from xml (or default values)
-    private float mCheckRadius;
-    private float mIndicatorRadius;
-    private float mLineMargin;
-    private int mAnimDuration;
+    private float checkRadius;
+    private float indicatorRadius;
+    private float lineMargin;
+    private int animDuration;
+
     /**
      * Custom step click listener which will notify any component which sets an listener of any events (touch events)
      * that happen regarding the steps widget.
      */
-    private List<OnStepClickListener> mOnStepClickListeners = new ArrayList<>(0);
-    /**
-     * Click areas for each of the steps supported by the StepperIndicator widget.
-     */
-    private List<RectF> mStepsClickAreas;
+    private List<OnStepClickListener> onStepClickListeners = new ArrayList<>(0);
+    /** Click areas for each of the steps supported by the StepperIndicator widget. */
+    private List<RectF> stepsClickAreas;
 
-    /**
-     * The gesture detector at which all the touch events will be propagated to.
-     */
-    private GestureDetector mGestureDetector;
-    private int mStepCount;
-    private int mCurrentStep;
-    private int mPreviousStep;
+    /** The gesture detector at which all the touch events will be propagated to. */
+    private GestureDetector gestureDetector;
+    private int stepCount;
+    private int currentStep;
+    private int previousStep;
 
     // X position of each step indicator's center
-    private float[] mIndicators;
+    private float[] indicators;
+    // Utils to avoid object instanciation during onDraw
+    private Rect stepAreaRect = new Rect();
+    private RectF stepAreaRectF = new RectF();
 
-    private ViewPager mPager;
-    private Bitmap mDoneIcon;
-    private boolean mShowDoneIcon;
+    private ViewPager pager;
+    private Bitmap doneIcon;
+    private boolean showDoneIcon;
 
     // Running animations
-    private AnimatorSet mAnimatorSet;
-    private ObjectAnimator mLineAnimator, mIndicatorAnimator, mCheckAnimator;
+    private AnimatorSet animatorSet;
+    private ObjectAnimator lineAnimator, indicatorAnimator, checkAnimator;
 
     /**
      * Custom gesture listener though which all the touch events are propagated.
@@ -353,7 +292,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * {@link #addOnStepClickListener(OnStepClickListener)}
      * </p>
      */
-    private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             float xCord = e.getX();
@@ -361,8 +300,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
             int clickedStep = STEP_INVALID;
             if (isOnStepClickListenerAvailable()) {
-                for (int i = 0; i < mStepsClickAreas.size(); i++) {
-                    if (mStepsClickAreas.get(i).contains(xCord, yCord)) {
+                for (int i = 0; i < stepsClickAreas.size(); i++) {
+                    if (stepsClickAreas.get(i).contains(xCord, yCord)) {
                         clickedStep = i;
                         // Stop as we found the step which was clicked
                         break;
@@ -372,7 +311,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
             // If the clicked step is valid and an listener was setup - send the event
             if (clickedStep != STEP_INVALID) {
-                for (OnStepClickListener listener : mOnStepClickListeners) {
+                for (OnStepClickListener listener : onStepClickListeners) {
                     listener.onStepClicked(clickedStep);
                 }
             }
@@ -410,11 +349,11 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             color = t.data;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // If using native primaryColor (SDK >21)
-            TypedArray t = context.obtainStyledAttributes(new int[] { android.R.attr.colorPrimary });
+            TypedArray t = context.obtainStyledAttributes(new int[]{android.R.attr.colorPrimary});
             color = t.getColor(0, ContextCompat.getColor(context, R.color.stpi_default_primary_color));
             t.recycle();
         } else {
-            TypedArray t = context.obtainStyledAttributes(new int[] { R.attr.colorPrimary });
+            TypedArray t = context.obtainStyledAttributes(new int[]{R.attr.colorPrimary});
             color = t.getColor(0, ContextCompat.getColor(context, R.color.stpi_default_primary_color));
             t.recycle();
         }
@@ -424,7 +363,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     private static PathEffect createPathEffect(float pathLength, float phase, float offset) {
         // Create a PathEffect to set on a Paint to only draw some part of the line
-        return new DashPathEffect(new float[] { pathLength, pathLength }, Math.max(phase * pathLength, offset));
+        return new DashPathEffect(new float[]{pathLength, pathLength}, Math.max(phase * pathLength, offset));
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -450,34 +389,33 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         /* Customize the widget based on the properties set on XML, or use default if not provided */
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.StepperIndicator, defStyleAttr, 0);
 
-        mCirclePaint = new Paint();
-        mCirclePaint.setStrokeWidth(
-                a.getDimension(R.styleable.StepperIndicator_stpi_circleStrokeWidth, defaultCircleStrokeWidth));
-        mCirclePaint.setStyle(Paint.Style.STROKE);
-        mCirclePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_circleColor, defaultCircleColor));
-        mCirclePaint.setAntiAlias(true);
+        circlePaint = new Paint();
+        circlePaint.setStrokeWidth(a.getDimension(R.styleable.StepperIndicator_stpi_circleStrokeWidth, defaultCircleStrokeWidth));
+        circlePaint.setStyle(Paint.Style.STROKE);
+        circlePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_circleColor, defaultCircleColor));
+        circlePaint.setAntiAlias(true);
 
         // Call this as early as possible as other properties are configured based on the number of steps
         setStepCount(a.getInteger(R.styleable.StepperIndicator_stpi_stepCount, 2));
 
-        final int stepsCircleColorsResID = a.getResourceId(R.styleable.StepperIndicator_stpi_stepsCircleColors, 0);
-        if (stepsCircleColorsResID != 0) {
-            mStepsCirclePaintList = new ArrayList<>(mStepCount);
+        final int stepsCircleColorsResId = a.getResourceId(R.styleable.StepperIndicator_stpi_stepsCircleColors, 0);
+        if (stepsCircleColorsResId != 0) {
+            stepsCirclePaintList = new ArrayList<>(stepCount);
 
-            for (int i = 0; i < mStepCount; i++) {
+            for (int i = 0; i < stepCount; i++) {
                 // Based on the main indicator paint object, we create the customized one
-                Paint circlePaint = new Paint(mCirclePaint);
+                Paint circlePaint = new Paint(this.circlePaint);
                 if (isInEditMode()) {
                     // Fallback for edit mode - to show something in the preview
                     circlePaint.setColor(getRandomColor());
                 } else {
                     // Get the array of attributes for the colors
-                    TypedArray colorResValues = context.getResources().obtainTypedArray(stepsCircleColorsResID);
+                    TypedArray colorResValues = context.getResources().obtainTypedArray(stepsCircleColorsResId);
 
-                    if (mStepCount > colorResValues.length()) {
+                    if (stepCount > colorResValues.length()) {
                         throw new IllegalArgumentException(
                                 "Invalid number of colors for the circles. Please provide a list " +
-                                "of colors with as many items as the number of steps required!");
+                                        "of colors with as many items as the number of steps required!");
                     }
 
                     circlePaint.setColor(colorResValues.getColor(i, 0)); // specific color
@@ -485,34 +423,33 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                     colorResValues.recycle();
                 }
 
-                mStepsCirclePaintList.add(circlePaint);
+                stepsCirclePaintList.add(circlePaint);
             }
         }
 
-        mIndicatorPaint = new Paint(mCirclePaint);
-        mIndicatorPaint.setStyle(Paint.Style.FILL);
-        mIndicatorPaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_indicatorColor, defaultIndicatorColor));
-        mIndicatorPaint.setAntiAlias(true);
+        indicatorPaint = new Paint(circlePaint);
+        indicatorPaint.setStyle(Paint.Style.FILL);
+        indicatorPaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_indicatorColor, defaultIndicatorColor));
+        indicatorPaint.setAntiAlias(true);
 
-        mStepTextNumberPaint = new Paint(mIndicatorPaint);
-        mStepTextNumberPaint.setTextSize(getResources().getDimension(R.dimen.stpi_default_text_size));
+        stepTextNumberPaint = new Paint(indicatorPaint);
+        stepTextNumberPaint.setTextSize(getResources().getDimension(R.dimen.stpi_default_text_size));
 
-        mShowStepTextNumber = a.getBoolean(R.styleable.StepperIndicator_stpi_showStepNumberInstead, false);
+        showStepTextNumber = a.getBoolean(R.styleable.StepperIndicator_stpi_showStepNumberInstead, false);
 
         // Get the resource from the context style properties
-        final int stepsIndicatorColorsResID =
-                a.getResourceId(R.styleable.StepperIndicator_stpi_stepsIndicatorColors, 0);
-        if (stepsIndicatorColorsResID != 0) {
+        final int stepsIndicatorColorsResId = a.getResourceId(R.styleable.StepperIndicator_stpi_stepsIndicatorColors, 0);
+        if (stepsIndicatorColorsResId != 0) {
             // init the list of colors with the same size as the number of steps
-            mStepsIndicatorPaintList = new ArrayList<>(mStepCount);
-            if (mShowStepTextNumber) {
-                mStepsTextNumberPaintList = new ArrayList<>(mStepCount);
+            stepsIndicatorPaintList = new ArrayList<>(stepCount);
+            if (showStepTextNumber) {
+                stepsTextNumberPaintList = new ArrayList<>(stepCount);
             }
 
-            for (int i = 0; i < mStepCount; i++) {
-                Paint indicatorPaint = new Paint(mIndicatorPaint);
+            for (int i = 0; i < stepCount; i++) {
+                Paint indicatorPaint = new Paint(this.indicatorPaint);
 
-                Paint textNumberPaint = mShowStepTextNumber ? new Paint(mStepTextNumberPaint) : null;
+                Paint textNumberPaint = showStepTextNumber ? new Paint(stepTextNumberPaint) : null;
                 if (isInEditMode()) {
                     // Fallback for edit mode - to show something in the preview
 
@@ -522,12 +459,12 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                     }
                 } else {
                     // Get the array of attributes for the colors
-                    TypedArray colorResValues = context.getResources().obtainTypedArray(stepsIndicatorColorsResID);
+                    TypedArray colorResValues = context.getResources().obtainTypedArray(stepsIndicatorColorsResId);
 
-                    if (mStepCount > colorResValues.length()) {
+                    if (stepCount > colorResValues.length()) {
                         throw new IllegalArgumentException(
                                 "Invalid number of colors for the indicators. Please provide a list " +
-                                "of colors with as many items as the number of steps required!");
+                                        "of colors with as many items as the number of steps required!");
                     }
 
                     indicatorPaint.setColor(colorResValues.getColor(i, 0)); // specific color
@@ -538,90 +475,84 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                     colorResValues.recycle();
                 }
 
-                mStepsIndicatorPaintList.add(indicatorPaint);
-                if (mShowStepTextNumber && null != textNumberPaint) {
-                    mStepsTextNumberPaintList.add(textNumberPaint);
+                stepsIndicatorPaintList.add(indicatorPaint);
+                if (showStepTextNumber && null != textNumberPaint) {
+                    stepsTextNumberPaintList.add(textNumberPaint);
                 }
             }
         }
 
-        mLinePaint = new Paint();
-        mLinePaint.setStrokeWidth(
-                a.getDimension(R.styleable.StepperIndicator_stpi_lineStrokeWidth, defaultLineStrokeWidth));
-        mLinePaint.setStrokeCap(Paint.Cap.ROUND);
-        mLinePaint.setStyle(Paint.Style.STROKE);
-        mLinePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_lineColor, defaultLineColor));
-        mLinePaint.setAntiAlias(true);
+        linePaint = new Paint();
+        linePaint.setStrokeWidth(a.getDimension(R.styleable.StepperIndicator_stpi_lineStrokeWidth, defaultLineStrokeWidth));
+        linePaint.setStrokeCap(Paint.Cap.ROUND);
+        linePaint.setStyle(Paint.Style.STROKE);
+        linePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_lineColor, defaultLineColor));
+        linePaint.setAntiAlias(true);
 
-        mLineDonePaint = new Paint(mLinePaint);
-        mLineDonePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_lineDoneColor, defaultLineDoneColor));
+        lineDonePaint = new Paint(linePaint);
+        lineDonePaint.setColor(a.getColor(R.styleable.StepperIndicator_stpi_lineDoneColor, defaultLineDoneColor));
 
-        mLineDoneAnimatedPaint = new Paint(mLineDonePaint);
+        lineDoneAnimatedPaint = new Paint(lineDonePaint);
 
         // Check if we should use the bottom indicator instead of the bullet one
-        mUseBottomIndicator = a.getBoolean(R.styleable.StepperIndicator_stpi_useBottomIndicator, false);
-        if (mUseBottomIndicator) {
+        useBottomIndicator = a.getBoolean(R.styleable.StepperIndicator_stpi_useBottomIndicator, false);
+        if (useBottomIndicator) {
             // Get the default height(stroke width) for the bottom indicator
             float defaultHeight = resources.getDimension(R.dimen.stpi_default_bottom_indicator_height);
 
-            mBottomIndicatorHeight =
-                    a.getDimension(R.styleable.StepperIndicator_stpi_bottomIndicatorHeight, defaultHeight);
+            bottomIndicatorHeight = a.getDimension(R.styleable.StepperIndicator_stpi_bottomIndicatorHeight, defaultHeight);
 
-            if (mBottomIndicatorHeight <= 0) {
-                Log.d(TAG_DEBUG, "init: Invalid indicator height, disabling bottom indicator feature! Please provide " +
-                                 "a value greater than 0.");
-                mUseBottomIndicator = false;
+            if (bottomIndicatorHeight <= 0) {
+                Log.d(TAG, "init: Invalid indicator height, disabling bottom indicator feature! Please provide " +
+                        "a value greater than 0.");
+                useBottomIndicator = false;
             }
 
             // Get the default width for the bottom indicator
             float defaultWidth = resources.getDimension(R.dimen.stpi_default_bottom_indicator_width);
-            mBottomIndicatorWidth =
-                    a.getDimension(R.styleable.StepperIndicator_stpi_bottomIndicatorWidth, defaultWidth);
+            bottomIndicatorWidth = a.getDimension(R.styleable.StepperIndicator_stpi_bottomIndicatorWidth, defaultWidth);
 
             // Get the default top margin for the bottom indicator
             float defaultTopMargin = resources.getDimension(R.dimen.stpi_default_bottom_indicator_margin_top);
-            mBottomIndicatorMarginTop =
-                    a.getDimension(R.styleable.StepperIndicator_stpi_bottomIndicatorMarginTop, defaultTopMargin);
+            bottomIndicatorMarginTop = a.getDimension(R.styleable.StepperIndicator_stpi_bottomIndicatorMarginTop, defaultTopMargin);
 
-            mUseBottomIndicatorWithStepColors =
-                    a.getBoolean(R.styleable.StepperIndicator_stpi_useBottomIndicatorWithStepColors, false);
+            useBottomIndicatorWithStepColors = a.getBoolean(R.styleable.StepperIndicator_stpi_useBottomIndicatorWithStepColors, false);
         }
 
-        mCircleRadius = a.getDimension(R.styleable.StepperIndicator_stpi_circleRadius, defaultCircleRadius);
-        mCheckRadius = mCircleRadius + mCirclePaint.getStrokeWidth() / 2f;
-        mIndicatorRadius = a.getDimension(R.styleable.StepperIndicator_stpi_indicatorRadius, defaultIndicatorRadius);
-        animIndicatorRadius = mIndicatorRadius;
-        animCheckRadius = mCheckRadius;
-        mLineMargin = a.getDimension(R.styleable.StepperIndicator_stpi_lineMargin, defaultLineMargin);
+        circleRadius = a.getDimension(R.styleable.StepperIndicator_stpi_circleRadius, defaultCircleRadius);
+        checkRadius = circleRadius + circlePaint.getStrokeWidth() / 2f;
+        indicatorRadius = a.getDimension(R.styleable.StepperIndicator_stpi_indicatorRadius, defaultIndicatorRadius);
+        animIndicatorRadius = indicatorRadius;
+        animCheckRadius = checkRadius;
+        lineMargin = a.getDimension(R.styleable.StepperIndicator_stpi_lineMargin, defaultLineMargin);
 
-        mAnimDuration = a.getInteger(R.styleable.StepperIndicator_stpi_animDuration, DEFAULT_ANIMATION_DURATION);
-        mShowDoneIcon = a.getBoolean(R.styleable.StepperIndicator_stpi_showDoneIcon, true);
+        animDuration = a.getInteger(R.styleable.StepperIndicator_stpi_animDuration, DEFAULT_ANIMATION_DURATION);
+        showDoneIcon = a.getBoolean(R.styleable.StepperIndicator_stpi_showDoneIcon, true);
 
         a.recycle();
 
-        if (mShowDoneIcon) {
-            mDoneIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_done_white_12dp);
+        if (showDoneIcon) {
+            doneIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_done_white_18dp);
         }
 
         // Display at least 1 cleared step for preview in XML editor
         if (isInEditMode()) {
-            mCurrentStep = Math.max((int) Math.ceil(mStepCount / 2f), 1);
+            currentStep = Math.max((int) Math.ceil(stepCount / 2f), 1);
         }
 
         // Initialize the gesture detector, setup with our custom gesture listener
-        mGestureDetector = new GestureDetector(getContext(), mGestureListener);
+        gestureDetector = new GestureDetector(getContext(), gestureListener);
     }
 
     /**
      * Get an random color {@link Paint} object.
      *
-     * @return {@link Paint} object with the same attributes as {@link #mCirclePaint} and with an random color.
-     *
-     * @see #mCirclePaint
+     * @return {@link Paint} object with the same attributes as {@link #circlePaint} and with an random color.
+     * @see #circlePaint
      * @see #getRandomColor()
      */
     private Paint getRandomPaint() {
-        Paint paint = new Paint(mIndicatorPaint);
+        Paint paint = new Paint(indicatorPaint);
         paint.setColor(getRandomColor());
 
         return paint;
@@ -640,14 +571,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // Dispatch the touch events to our custom gesture detector.
-        mGestureDetector.onTouchEvent(event);
+        gestureDetector.onTouchEvent(event);
         return true; // we handle the event in the gesture detector
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         compute(); // for setting up the indicator based on the new position
-        computeStepsClickAreas(); // update the position of the steps click area also
     }
 
     /**
@@ -658,35 +588,37 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * </p>
      */
     private void compute() {
-        if (null == mCirclePaint) {
-            throw new IllegalArgumentException("mCirclePaint is invalid! Make sure you setup the field mCirclePaint " +
-                                               "before calling compute() method!");
+        if (null == circlePaint) {
+            throw new IllegalArgumentException("circlePaint is invalid! Make sure you setup the field circlePaint " +
+                                                       "before calling compute() method!");
         }
 
-        mIndicators = new float[mStepCount];
-        mLinePathList.clear();
+        indicators = new float[stepCount];
+        linePathList.clear();
 
-        float startX = mCircleRadius * EXPAND_MARK + mCirclePaint.getStrokeWidth() / 2f;
-        if (mUseBottomIndicator) {
-            startX += mBottomIndicatorWidth / 2 - startX;
+        float startX = circleRadius * EXPAND_MARK + circlePaint.getStrokeWidth() / 2f;
+        if (useBottomIndicator) {
+            startX += bottomIndicatorWidth / 2 - startX;
         }
 
         // Compute position of indicators and line length
-        float divider = (getMeasuredWidth() - startX * 2f) / (mStepCount - 1);
-        mLineLength = divider - (mCircleRadius * 2f + mCirclePaint.getStrokeWidth()) - (mLineMargin * 2);
+        float divider = (getMeasuredWidth() - startX * 2f) / (stepCount - 1);
+        lineLength = divider - (circleRadius * 2f + circlePaint.getStrokeWidth()) - (lineMargin * 2);
 
         // Compute position of circles and lines once
-        for (int i = 0; i < mIndicators.length; i++) {
-            mIndicators[i] = startX + divider * i;
+        for (int i = 0; i < indicators.length; i++) {
+            indicators[i] = startX + divider * i;
         }
-        for (int i = 0; i < mIndicators.length - 1; i++) {
-            float position = ((mIndicators[i] + mIndicators[i + 1]) / 2) - mLineLength / 2;
+        for (int i = 0; i < indicators.length - 1; i++) {
+            float position = ((indicators[i] + indicators[i + 1]) / 2) - lineLength / 2;
             final Path linePath = new Path();
-            int lineY = getStepCenterY();
+            float lineY = getStepCenterY();
             linePath.moveTo(position, lineY);
-            linePath.lineTo(position + mLineLength, lineY);
-            mLinePathList.add(linePath);
+            linePath.lineTo(position + lineLength, lineY);
+            linePathList.add(linePath);
         }
+
+        computeStepsClickAreas(); // update the position of the steps click area also
     }
 
     /**
@@ -699,35 +631,35 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * </p>
      */
     public void computeStepsClickAreas() {
-        if (mStepCount == STEP_INVALID) {
-            throw new IllegalArgumentException("mStepCount wasn't setup yet. Make sure you call setStepCount() " +
-                                               "before computing the steps click area!");
+        if (stepCount == STEP_INVALID) {
+            throw new IllegalArgumentException("stepCount wasn't setup yet. Make sure you call setStepCount() " +
+                                                       "before computing the steps click area!");
         }
 
-        if (null == mIndicators) {
+        if (null == indicators) {
             throw new IllegalArgumentException("indicators wasn't setup yet. Make sure the indicators are " +
-                                               "initialized and setup correctly before trying to compute the click " +
-                                               "area for each step!");
+                                                       "initialized and setup correctly before trying to compute the click " +
+                                                       "area for each step!");
         }
 
         // Initialize the list for the steps click area
-        mStepsClickAreas = new ArrayList<>(mStepCount);
+        stepsClickAreas = new ArrayList<>(stepCount);
 
         // Compute the clicked area for each step
-        for (float indicator : mIndicators) {
+        for (float indicator : indicators) {
             // Get the indicator position
             // Calculate the bounds for the step
-            float left = indicator - mCircleRadius * 2;
-            float right = indicator + mCircleRadius * 2;
-            float top = getStepCenterY() - mCircleRadius * 2;
-            float bottom = getStepCenterY() + mCircleRadius + getBottomIndicatorHeight();
+            float left = indicator - circleRadius * 2;
+            float right = indicator + circleRadius * 2;
+            float top = getStepCenterY() - circleRadius * 2;
+            float bottom = getStepCenterY() + circleRadius + getBottomIndicatorHeight();
 
             // Store the click area for the step
             RectF area = new RectF(left, top, right, bottom);
-            mStepsClickAreas.add(area);
+            stepsClickAreas.add(area);
         }
     }
-    
+
     /**
      * Get the height of the bottom indicator.
      * <p>
@@ -741,13 +673,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * @return The height of the bottom indicator in pixels or {@code 0}.
      */
     private int getBottomIndicatorHeight() {
-        if (mUseBottomIndicator) {
-            return (int) (mBottomIndicatorHeight + mBottomIndicatorMarginTop);
+        if (useBottomIndicator) {
+            return (int) (bottomIndicatorHeight + bottomIndicatorMarginTop);
         } else {
             return 0;
         }
     }
-    
+
     private float getStepCenterY() {
         return (getMeasuredHeight() - getBottomIndicatorHeight()) / 2f;
     }
@@ -764,58 +696,57 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         boolean inIndicatorAnimation = false;
         boolean inCheckAnimation = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            inAnimation = mAnimatorSet != null && mAnimatorSet.isRunning();
-            inLineAnimation = mLineAnimator != null && mLineAnimator.isRunning();
-            inIndicatorAnimation = mIndicatorAnimator != null && mIndicatorAnimator.isRunning();
-            inCheckAnimation = mCheckAnimator != null && mCheckAnimator.isRunning();
+            inAnimation = animatorSet != null && animatorSet.isRunning();
+            inLineAnimation = lineAnimator != null && lineAnimator.isRunning();
+            inIndicatorAnimation = indicatorAnimator != null && indicatorAnimator.isRunning();
+            inCheckAnimation = checkAnimator != null && checkAnimator.isRunning();
         }
 
-        boolean drawToNext = mPreviousStep == mCurrentStep - 1;
-        boolean drawFromNext = mPreviousStep == mCurrentStep + 1;
+        boolean drawToNext = previousStep == currentStep - 1;
+        boolean drawFromNext = previousStep == currentStep + 1;
 
-        for (int i = 0; i < mIndicators.length; i++) {
-            final float indicator = mIndicators[i];
+        for (int i = 0; i < indicators.length; i++) {
+            final float indicator = indicators[i];
 
             // We draw the "done" check if previous step, or if we are going back (if going back, animated value will reduce radius to 0)
-            boolean drawCheck = i < mCurrentStep || (drawFromNext && i == mCurrentStep);
+            boolean drawCheck = i < currentStep || (drawFromNext && i == currentStep);
 
             // Draw back circle
-            canvas.drawCircle(indicator, centerY, mCircleRadius, getStepCirclePaint(i));
+            canvas.drawCircle(indicator, centerY, circleRadius, getStepCirclePaint(i));
 
             // Draw the step number inside the back circle if the flag for this is set to true
-            if (mShowStepTextNumber) {
+            if (showStepTextNumber) {
                 final String stepLabel = String.valueOf(i + 1);
 
-                Rect stepAreaRect = new Rect((int) (indicator - mCircleRadius), (int) (centerY - mCircleRadius),
-                                             (int) (indicator + mCircleRadius), (int) (centerY + mCircleRadius));
-                RectF stepBounds = new RectF(stepAreaRect);
+                stepAreaRect.set((int) (indicator - circleRadius), (int) (centerY - circleRadius),
+                                 (int) (indicator + circleRadius), (int) (centerY + circleRadius));
+                stepAreaRectF.set(stepAreaRect);
 
                 Paint stepTextNumberPaint = getStepTextNumberPaint(i);
 
                 // measure text width
-                stepBounds.right = stepTextNumberPaint.measureText(stepLabel, 0, stepLabel.length());
+                stepAreaRectF.right = stepTextNumberPaint.measureText(stepLabel, 0, stepLabel.length());
                 // measure text height
-                stepBounds.bottom = stepTextNumberPaint.descent() - stepTextNumberPaint.ascent();
+                stepAreaRectF.bottom = stepTextNumberPaint.descent() - stepTextNumberPaint.ascent();
 
-                stepBounds.left += (stepAreaRect.width() - stepBounds.right) / 2.0f;
-                stepBounds.top += (stepAreaRect.height() - stepBounds.bottom) / 2.0f;
+                stepAreaRectF.left += (stepAreaRect.width() - stepAreaRectF.right) / 2.0f;
+                stepAreaRectF.top += (stepAreaRect.height() - stepAreaRectF.bottom) / 2.0f;
 
-                canvas.drawText(stepLabel, stepBounds.left, stepBounds.top - stepTextNumberPaint.ascent(),
-                                stepTextNumberPaint);
+                canvas.drawText(stepLabel, stepAreaRectF.left, stepAreaRectF.top - stepTextNumberPaint.ascent(), stepTextNumberPaint);
             }
 
-            if (mUseBottomIndicator) {
+            if (useBottomIndicator) {
                 // Show the current step indicator as bottom line
-                if (i == mCurrentStep) {
+                if (i == currentStep) {
                     // Draw custom indicator for current step only
-                    canvas.drawRect(indicator - mBottomIndicatorWidth / 2, getHeight() - mBottomIndicatorHeight,
-                                    indicator + mBottomIndicatorWidth / 2, getHeight(),
-                                    mUseBottomIndicatorWithStepColors ? getStepIndicatorPaint(i) : mIndicatorPaint);
+                    canvas.drawRect(indicator - bottomIndicatorWidth / 2, getHeight() - bottomIndicatorHeight,
+                                    indicator + bottomIndicatorWidth / 2, getHeight(),
+                                    useBottomIndicatorWithStepColors ? getStepIndicatorPaint(i) : indicatorPaint);
                 }
             } else {
                 // Show the current step indicator as bullet
                 // If current step, or coming back from next step and still animating
-                if ((i == mCurrentStep && !drawFromNext) || (i == mPreviousStep && drawFromNext && inAnimation)) {
+                if ((i == currentStep && !drawFromNext) || (i == previousStep && drawFromNext && inAnimation)) {
                     // Draw animated indicator
                     canvas.drawCircle(indicator, centerY, animIndicatorRadius, getStepIndicatorPaint(i));
                 }
@@ -823,36 +754,36 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
             // Draw check mark
             if (drawCheck) {
-                float radius = mCheckRadius;
+                float radius = checkRadius;
                 // Use animated radius value?
-                if ((i == mPreviousStep && drawToNext) || (i == mCurrentStep && drawFromNext)) radius = animCheckRadius;
+                if ((i == previousStep && drawToNext) || (i == currentStep && drawFromNext)) radius = animCheckRadius;
                 canvas.drawCircle(indicator, centerY, radius, getStepIndicatorPaint(i));
 
                 // Draw check bitmap
-                if (!isInEditMode() && mShowDoneIcon) {
-                    if ((i != mPreviousStep && i != mCurrentStep) ||
-                        (!inCheckAnimation && !(i == mCurrentStep && !inAnimation))) {
-                        canvas.drawBitmap(mDoneIcon, indicator - (mDoneIcon.getWidth() / 2),
-                                          centerY - (mDoneIcon.getHeight() / 2), null);
+                if (!isInEditMode() && showDoneIcon) {
+                    if ((i != previousStep && i != currentStep) ||
+                            (!inCheckAnimation && !(i == currentStep && !inAnimation))) {
+                        canvas.drawBitmap(doneIcon, indicator - (doneIcon.getWidth() / 2),
+                                          centerY - (doneIcon.getHeight() / 2), null);
                     }
                 }
             }
 
             // Draw lines
-            if (i < mLinePathList.size()) {
-                if (i >= mCurrentStep) {
-                    canvas.drawPath(mLinePathList.get(i), mLinePaint);
-                    if (i == mCurrentStep && drawFromNext && (inLineAnimation || inIndicatorAnimation)) {
+            if (i < linePathList.size()) {
+                if (i >= currentStep) {
+                    canvas.drawPath(linePathList.get(i), linePaint);
+                    if (i == currentStep && drawFromNext && (inLineAnimation || inIndicatorAnimation)) {
                         // Coming back from n+1
-                        canvas.drawPath(mLinePathList.get(i), mLineDoneAnimatedPaint);
+                        canvas.drawPath(linePathList.get(i), lineDoneAnimatedPaint);
                     }
                 } else {
-                    if (i == mCurrentStep - 1 && drawToNext && inLineAnimation) {
+                    if (i == currentStep - 1 && drawToNext && inLineAnimation) {
                         // Going to n+1
-                        canvas.drawPath(mLinePathList.get(i), mLinePaint);
-                        canvas.drawPath(mLinePathList.get(i), mLineDoneAnimatedPaint);
+                        canvas.drawPath(linePathList.get(i), linePaint);
+                        canvas.drawPath(linePathList.get(i), lineDoneAnimatedPaint);
                     } else {
-                        canvas.drawPath(mLinePathList.get(i), mLineDonePaint);
+                        canvas.drawPath(linePathList.get(i), lineDonePaint);
                     }
                 }
             }
@@ -862,37 +793,31 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * Get the {@link Paint} object which should be used for displaying the current step indicator.
      *
-     * @param stepPosition
-     *         The step position for which to retrieve the {@link Paint} object
-     *
+     * @param stepPosition The step position for which to retrieve the {@link Paint} object
      * @return The {@link Paint} object for the specified step position
      */
     private Paint getStepIndicatorPaint(final int stepPosition) {
-        return getPaint(stepPosition, mStepsIndicatorPaintList, mIndicatorPaint);
+        return getPaint(stepPosition, stepsIndicatorPaintList, indicatorPaint);
     }
 
     /**
      * Get the {@link Paint} object which should be used for drawing the text number the current step.
      *
-     * @param stepPosition
-     *         The step position for which to retrieve the {@link Paint} object
-     *
+     * @param stepPosition The step position for which to retrieve the {@link Paint} object
      * @return The {@link Paint} object for the specified step position
      */
     private Paint getStepTextNumberPaint(final int stepPosition) {
-        return getPaint(stepPosition, mStepsTextNumberPaintList, mStepTextNumberPaint);
+        return getPaint(stepPosition, stepsTextNumberPaintList, stepTextNumberPaint);
     }
 
     /**
      * Get the {@link Paint} object which should be used for drawing the circle for the step.
      *
-     * @param stepPosition
-     *         The step position for which to retrieve the {@link Paint} object
-     *
+     * @param stepPosition The step position for which to retrieve the {@link Paint} object
      * @return The {@link Paint} object for the specified step position
      */
     private Paint getStepCirclePaint(final int stepPosition) {
-        return getPaint(stepPosition, mStepsCirclePaintList, mCirclePaint);
+        return getPaint(stepPosition, stepsCirclePaintList, circlePaint);
     }
 
     /**
@@ -902,14 +827,10 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * will be returned instead.
      * </p>
      *
-     * @param stepPosition
-     *         The step position for which the {@link Paint} object is needed
-     * @param sourceList
-     *         The source list of {@link Paint} object.
-     * @param defaultPaint
-     *         The default {@link Paint} object which will be returned if the source list does not
-     *         contain the specified step.
-     *
+     * @param stepPosition The step position for which the {@link Paint} object is needed
+     * @param sourceList   The source list of {@link Paint} object.
+     * @param defaultPaint The default {@link Paint} object which will be returned if the source list does not
+     *                     contain the specified step.
      * @return {@link Paint} object for the specified step position.
      */
     private Paint getPaint(final int stepPosition, final List<Paint> sourceList, final Paint defaultPaint) {
@@ -921,8 +842,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                 paint = sourceList.get(stepPosition);
             } catch (IndexOutOfBoundsException e) {
                 // We use an random color as this usually should not happen, maybe in edit mode
-                Log.d(TAG_DEBUG,
-                      "getPaint: could not find the specific step paint to use! Try to use default instead!");
+                Log.d(TAG, "getPaint: could not find the specific step paint to use! Try to use default instead!");
             }
         }
 
@@ -932,8 +852,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         }
 
         if (null == paint) {
-            Log.d(TAG_DEBUG,
-                  "getPaint: could not use default paint for the specific step! Using random Paint instead!");
+            Log.d(TAG, "getPaint: could not use default paint for the specific step! Using random Paint instead!");
             // If we reached this point, not even the default is setup, rely on some random color
             paint = getRandomPaint();
         }
@@ -948,15 +867,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * invalid step is detected. Catch the exception if it is expected or it doesn't affect the flow.
      * </p>
      *
-     * @param stepPos
-     *         The step position to verify
-     *
+     * @param stepPos The step position to verify
      * @return {@code true} if the step is valid, otherwise it will throw an exception.
      */
     private boolean isStepValid(final int stepPos) {
-        if (stepPos < 0 || stepPos > mStepCount - 1) {
+        if (stepPos < 0 || stepPos > stepCount - 1) {
             throw new IllegalArgumentException("Invalid step position. " + stepPos + " is not a valid position! it " +
-                                               "should be between 0 and mStepCount(" + mStepCount + ")");
+                                                       "should be between 0 and stepCount(" + stepCount + ")");
         }
 
         return true;
@@ -965,8 +882,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Compute the necessary height for the widget
-        int desiredHeight = (int) Math.ceil((mCircleRadius * EXPAND_MARK * 2) + mCirclePaint.getStrokeWidth() +
-                                            getBottomIndicatorHeight());
+        int desiredHeight = (int) Math.ceil((circleRadius * EXPAND_MARK * 2) + circlePaint.getStrokeWidth() +
+                                                    getBottomIndicatorHeight());
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -981,100 +898,97 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     @SuppressWarnings("unused")
     public int getStepCount() {
-        return mStepCount;
+        return stepCount;
     }
 
     public void setStepCount(int stepCount) {
         if (stepCount < 2) {
-            throw new IllegalArgumentException("mStepCount must be >= 2");
+            throw new IllegalArgumentException("stepCount must be >= 2");
         }
 
-        mStepCount = stepCount;
-        mCurrentStep = 0;
+        this.stepCount = stepCount;
+        currentStep = 0;
         compute();
-        computeStepsClickAreas();
         invalidate();
     }
 
     @SuppressWarnings("unused")
     public int getCurrentStep() {
-        return mCurrentStep;
+        return currentStep;
     }
 
     /**
      * Sets the current step
      *
-     * @param currentStep
-     *         a value between 0 (inclusive) and mStepCount (inclusive)
+     * @param currentStep a value between 0 (inclusive) and stepCount (inclusive)
      */
     @UiThread
     public void setCurrentStep(int currentStep) {
-        if (currentStep < 0 || currentStep > mStepCount) {
+        if (currentStep < 0 || currentStep > stepCount) {
             throw new IllegalArgumentException("Invalid step value " + currentStep);
         }
 
-        mPreviousStep = mCurrentStep;
-        mCurrentStep = currentStep;
+        previousStep = this.currentStep;
+        this.currentStep = currentStep;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Cancel any running animations
-            if (mAnimatorSet != null) {
-                mAnimatorSet.cancel();
+            if (animatorSet != null) {
+                animatorSet.cancel();
             }
 
-            mAnimatorSet = null;
-            mLineAnimator = null;
-            mIndicatorAnimator = null;
+            animatorSet = null;
+            lineAnimator = null;
+            indicatorAnimator = null;
 
             // TODO: 05/08/16 handle cases where steps are skipped - need to animate all of them
 
-            if (currentStep == mPreviousStep + 1) {
+            if (currentStep == previousStep + 1) {
                 // Going to next step
-                mAnimatorSet = new AnimatorSet();
+                animatorSet = new AnimatorSet();
 
                 // First, draw line to new
-                mLineAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animProgress", 1.0f, 0.0f);
+                lineAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animProgress", 1.0f, 0.0f);
 
                 // Same time, pop check mark
-                mCheckAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animCheckRadius", mIndicatorRadius,
-                                                        mCheckRadius * EXPAND_MARK, mCheckRadius);
+                checkAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animCheckRadius", indicatorRadius,
+                                                       checkRadius * EXPAND_MARK, checkRadius);
 
                 // Finally, pop current step indicator
                 animIndicatorRadius = 0;
-                mIndicatorAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animIndicatorRadius", 0f,
-                                                            mIndicatorRadius * 1.4f, mIndicatorRadius);
+                indicatorAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animIndicatorRadius", 0f,
+                                                           indicatorRadius * 1.4f, indicatorRadius);
 
-                mAnimatorSet.play(mLineAnimator).with(mCheckAnimator).before(mIndicatorAnimator);
-            } else if (currentStep == mPreviousStep - 1) {
+                animatorSet.play(lineAnimator).with(checkAnimator).before(indicatorAnimator);
+            } else if (currentStep == previousStep - 1) {
                 // Going back to previous step
-                mAnimatorSet = new AnimatorSet();
+                animatorSet = new AnimatorSet();
 
                 // First, pop out current step indicator
-                mIndicatorAnimator =
-                        ObjectAnimator.ofFloat(StepperIndicator.this, "animIndicatorRadius", mIndicatorRadius, 0f);
+                indicatorAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animIndicatorRadius", indicatorRadius, 0f);
 
                 // Then delete line
                 animProgress = 1.0f;
-                mLineDoneAnimatedPaint.setPathEffect(null);
-                mLineAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animProgress", 0.0f, 1.0f);
+                lineDoneAnimatedPaint.setPathEffect(null);
+                lineAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animProgress", 0.0f, 1.0f);
 
                 // Finally, pop out check mark to display step indicator
-                animCheckRadius = mCheckRadius;
-                mCheckAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animCheckRadius", mCheckRadius,
-                                                        mShowStepTextNumber ? 0f : mIndicatorRadius);
+                animCheckRadius = checkRadius;
+                checkAnimator = ObjectAnimator.ofFloat(StepperIndicator.this, "animCheckRadius", checkRadius,
+                                                       showStepTextNumber ? 0f : indicatorRadius);
 
-                mAnimatorSet.playSequentially(mIndicatorAnimator, mLineAnimator, mCheckAnimator);
+                animatorSet.playSequentially(indicatorAnimator, lineAnimator, checkAnimator);
             }
 
-            if (mAnimatorSet != null) {
+            if (animatorSet != null) {
                 // Max 500 ms for the animation
-                mLineAnimator.setDuration(Math.min(500, mAnimDuration));
-                mLineAnimator.setInterpolator(new DecelerateInterpolator());
+                lineAnimator.setDuration(Math.min(500, animDuration));
+                lineAnimator.setInterpolator(new DecelerateInterpolator());
                 // Other animations will run 2 times faster that line animation
-                mIndicatorAnimator.setDuration(mLineAnimator.getDuration() / 2);
-                mCheckAnimator.setDuration(mLineAnimator.getDuration() / 2);
+                indicatorAnimator.setDuration(lineAnimator.getDuration() / 2);
+                checkAnimator.setDuration(lineAnimator.getDuration() / 2);
 
-                mAnimatorSet.start();
+                animatorSet.start();
             }
         }
 
@@ -1090,7 +1004,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     @SuppressWarnings("unused")
     public void setAnimProgress(float animProgress) {
         this.animProgress = animProgress;
-        mLineDoneAnimatedPaint.setPathEffect(createPathEffect(mLineLength, animProgress, 0.0f));
+        lineDoneAnimatedPaint.setPathEffect(createPathEffect(lineLength, animProgress, 0.0f));
         invalidate();
     }
 
@@ -1121,8 +1035,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * Set the {@link ViewPager} associated with this widget indicator.
      *
-     * @param pager
-     *         {@link ViewPager} to attach
+     * @param pager {@link ViewPager} to attach
      */
     @SuppressWarnings("unused")
     public void setViewPager(ViewPager pager) {
@@ -1135,10 +1048,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * Set the {@link ViewPager} associated with this widget indicator.
      *
-     * @param pager
-     *         {@link ViewPager} to attach
-     * @param keepLastPage
-     *         {@code true} if the widget should not create an indicator for the last page, to use it as the final page
+     * @param pager        {@link ViewPager} to attach
+     * @param keepLastPage {@code true} if the widget should not create an indicator for the last page, to use it as the final page
      */
     public void setViewPager(ViewPager pager, boolean keepLastPage) {
         if (pager.getAdapter() == null) {
@@ -1150,26 +1061,24 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * Set the {@link ViewPager} associated with this widget indicator.
      *
-     * @param pager
-     *         {@link ViewPager} to attach
-     * @param stepCount
-     *         The real page count to display (use this if you are using looped viewpager to indicate the real number
-     *         of pages)
+     * @param pager     {@link ViewPager} to attach
+     * @param stepCount The real page count to display (use this if you are using looped viewpager to indicate the real number
+     *                  of pages)
      */
     public void setViewPager(ViewPager pager, int stepCount) {
-        if (mPager == pager) {
+        if (this.pager == pager) {
             return;
         }
-        if (mPager != null) {
+        if (this.pager != null) {
             pager.removeOnPageChangeListener(this);
         }
         if (pager.getAdapter() == null) {
             throw new IllegalStateException("ViewPager does not have adapter instance.");
         }
 
-        mPager = pager;
-        mStepCount = stepCount;
-        mCurrentStep = 0;
+        this.pager = pager;
+        this.stepCount = stepCount;
+        currentStep = 0;
         pager.addOnPageChangeListener(this);
         invalidate();
     }
@@ -1177,23 +1086,21 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * Add the {@link OnStepClickListener} to the list of listeners which will receive events when an step is clicked.
      *
-     * @param listener
-     *         The {@link OnStepClickListener} which will be added
+     * @param listener The {@link OnStepClickListener} which will be added
      */
     public void addOnStepClickListener(OnStepClickListener listener) {
-        mOnStepClickListeners.add(listener);
+        onStepClickListeners.add(listener);
     }
 
     /**
      * Remove the specified {@link OnStepClickListener} from the list of listeners which will receive events when an
      * step is clicked.
      *
-     * @param listener
-     *         The {@link OnStepClickListener} which will be removed
+     * @param listener The {@link OnStepClickListener} which will be removed
      */
     @SuppressWarnings("unused")
     public void removeOnStepClickListener(OnStepClickListener listener) {
-        mOnStepClickListeners.remove(listener);
+        onStepClickListeners.remove(listener);
     }
 
     /**
@@ -1203,7 +1110,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      */
     @SuppressWarnings("unused")
     public void clearOnStepClickListeners() {
-        mOnStepClickListeners.clear();
+        onStepClickListeners.clear();
     }
 
     /**
@@ -1212,7 +1119,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * @return {@code true} if there are listeners registered, {@code false} otherwise.
      */
     public boolean isOnStepClickListenerAvailable() {
-        return null != mOnStepClickListeners && !mOnStepClickListeners.isEmpty();
+        return null != onStepClickListeners && !onStepClickListeners.isEmpty();
     }
 
     @Override
@@ -1235,7 +1142,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         SavedState savedState = (SavedState) state;
         super.onRestoreInstanceState(savedState.getSuperState());
         // Try to restore the current step
-        mCurrentStep = savedState.mCurrentStep;
+        currentStep = savedState.mCurrentStep;
         requestLayout();
     }
 
@@ -1244,7 +1151,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         Parcelable superState = super.onSaveInstanceState();
         SavedState savedState = new SavedState(superState);
         // Store current stop so that it can be resumed when restored
-        savedState.mCurrentStep = mCurrentStep;
+        savedState.mCurrentStep = currentStep;
         return savedState;
     }
 
@@ -1255,8 +1162,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         /**
          * Step was clicked
          *
-         * @param step
-         *         The step position which was clicked. (starts from 0, as the ViewPager bound to the widget)
+         * @param step The step position which was clicked. (starts from 0, as the ViewPager bound to the widget)
          */
         void onStepClicked(int step);
     }
