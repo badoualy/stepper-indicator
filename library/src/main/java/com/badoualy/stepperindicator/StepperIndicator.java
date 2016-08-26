@@ -729,6 +729,29 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                 canvas.drawText(stepLabel, stepAreaRectF.left, stepAreaRectF.top - stepTextNumberPaint.ascent(), stepTextNumberPaint);
             }
 
+            // Check if page has Title to add label below circle
+            if (pager.getAdapter().getPageTitle(i) != null) {
+                // Get Page Title from adapter
+                final String stepLabel = String.valueOf(pager.getAdapter().getPageTitle(i));
+
+                stepAreaRect.set((int) (indicator - circleRadius), (int) (centerY - circleRadius),
+                        (int) (indicator + circleRadius), (int) (centerY + circleRadius));
+                stepAreaRectF.set(stepAreaRect);
+
+                Paint stepTextNumberPaint = getStepTextNumberPaint(i);
+                stepTextNumberPaint.setTextSize(18);
+
+                // measure text width
+                stepAreaRectF.right = stepTextNumberPaint.measureText(stepLabel, 0, stepLabel.length());
+                // measure text height
+                stepAreaRectF.bottom = stepTextNumberPaint.descent() - stepTextNumberPaint.ascent();
+
+                stepAreaRectF.left += (stepAreaRect.width() - stepAreaRectF.right) / 2.0f;
+                stepAreaRectF.top += (stepAreaRect.height() - stepAreaRectF.bottom) / 2.0f;
+
+                canvas.drawText(stepLabel, stepAreaRectF.left, getStepCirclePaint(i).descent() + stepAreaRect.bottom + circleRadius, stepTextNumberPaint);
+            }
+
             if (useBottomIndicator) {
                 // Show the current step indicator as bottom line
                 if (i == currentStep) {

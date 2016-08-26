@@ -87,5 +87,10 @@ public class MainActivity extends AppCompatActivity {
             return PageFragment.newInstance(position + 1, position == getCount() - 1);
         }
 
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return String.valueOf(position) + " title";
+        }
+
     }
 }
