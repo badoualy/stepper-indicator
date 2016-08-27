@@ -238,6 +238,16 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
      * </p>
      */
     private boolean useBottomIndicator;
+
+    /**
+     * Flag indicating if step should display page title below step indicator.
+     */
+    private boolean useStepLabel;
+    /** The top margin of the step label. */
+    private float stepLabelMarginTop = 0;
+    /** The height of the step label. */
+    private float stepLabelHeight = 0;
+
     /** The top margin of the bottom indicator. */
     private float bottomIndicatorMarginTop = 0;
     /** The width of the bottom indicator. */
@@ -519,6 +529,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             useBottomIndicatorWithStepColors = a.getBoolean(R.styleable.StepperIndicator_stpi_useBottomIndicatorWithStepColors, false);
         }
 
+        useStepLabel = a.getBoolean(R.styleable.StepperIndicator_stpi_useStepLabel, false);
+        if (useStepLabel) {
+            // Get the default top margin for the step label
+            float defaultTopMargin = resources.getDimension(R.dimen.stpi_default_step_label_margin_top);
+            stepLabelMarginTop = a.getDimension(R.styleable.StepperIndicator_stpi_stepLabelMarginTop, defaultTopMargin);
+        }
+
         circleRadius = a.getDimension(R.styleable.StepperIndicator_stpi_circleRadius, defaultCircleRadius);
         checkRadius = circleRadius + circlePaint.getStrokeWidth() / 2f;
         indicatorRadius = a.getDimension(R.styleable.StepperIndicator_stpi_indicatorRadius, defaultIndicatorRadius);
@@ -652,7 +669,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             float left = indicator - circleRadius * 2;
             float right = indicator + circleRadius * 2;
             float top = getStepCenterY() - circleRadius * 2;
-            float bottom = getStepCenterY() + circleRadius + getBottomIndicatorHeight();
+            float bottom = getStepCenterY() + circleRadius + getStepLabelHeight()
+                    + getBottomIndicatorHeight();
 
             // Store the click area for the step
             RectF area = new RectF(left, top, right, bottom);
@@ -675,6 +693,14 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     private int getBottomIndicatorHeight() {
         if (useBottomIndicator) {
             return (int) (bottomIndicatorHeight + bottomIndicatorMarginTop);
+        } else {
+            return 0;
+        }
+    }
+
+    private int getStepLabelHeight() {
+        if (useStepLabel) {
+            return (int) (stepLabelHeight + stepLabelMarginTop);
         } else {
             return 0;
         }
@@ -727,6 +753,31 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                 stepAreaRectF.top += (stepAreaRect.height() - stepAreaRectF.bottom) / 2.0f;
 
                 canvas.drawText(stepLabel, stepAreaRectF.left, stepAreaRectF.top - stepTextNumberPaint.ascent(), stepTextNumberPaint);
+            }
+
+            // Check if page has Title to add label below circle
+            if (useStepLabel) {
+                // Get Page Title from adapter
+                final String stepLabel = String.valueOf(pager.getAdapter().getPageTitle(i));
+
+                stepAreaRect.set((int) (indicator - circleRadius), (int) (centerY - circleRadius),
+                        (int) (indicator + circleRadius), (int) (centerY + circleRadius));
+                stepAreaRectF.set(stepAreaRect);
+
+                Paint stepLabelPaint = getStepTextNumberPaint(i);
+                stepLabelPaint.setTextSize(18);
+
+                // measure text width
+                stepAreaRectF.right = stepLabelPaint.measureText(stepLabel, 0, stepLabel.length());
+                // measure text height
+                stepAreaRectF.bottom = stepLabelPaint.descent() - stepLabelPaint.ascent();
+
+                stepAreaRectF.left += (stepAreaRect.width() - stepAreaRectF.right) / 2.0f;
+                stepAreaRectF.top += (stepAreaRect.height() - stepAreaRectF.bottom) / 2.0f;
+
+                canvas.drawText(stepLabel, stepAreaRectF.left,
+                        getHeight() + stepLabelMarginTop,
+                        stepLabelPaint);
             }
 
             if (useBottomIndicator) {
@@ -876,8 +927,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Compute the necessary height for the widget
-        int desiredHeight = (int) Math.ceil((circleRadius * EXPAND_MARK * 2) + circlePaint.getStrokeWidth() +
-                                                    getBottomIndicatorHeight());
+        int desiredHeight = (int) Math.ceil((circleRadius * EXPAND_MARK * 2)
+                + circlePaint.getStrokeWidth() + getBottomIndicatorHeight() + getStepLabelHeight());
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
