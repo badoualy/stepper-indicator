@@ -25,6 +25,9 @@
         <attr format="dimension" name="stpi_bottomIndicatorWidth"/>
         <attr format="dimension" name="stpi_bottomIndicatorMarginTop"/>
 
+        <attr format="boolean" name="stpi_useStepLabel"/>
+        <attr format="boolean" name="stpi_stepLabelMarginTop"/>
+
         <attr format="reference" name="stpi_stepsCircleColors"/>
         <attr format="reference" name="stpi_stepsIndicatorColors"/>
     </declare-styleable>
