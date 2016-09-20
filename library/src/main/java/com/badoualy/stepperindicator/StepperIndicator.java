@@ -39,7 +39,7 @@ import java.util.Random;
  * <p> The default main primary color if not specified in the XML attributes will use the theme primary color defined via {@code colorPrimary} attribute. </p>
  * <p> If this view is used on a device below API 11, animations will not be used. </p>
  * <p> Usage of stepper custom attributes: </p>
- * <table><thead>
+ * <table summary="Attributes"><thead>
  * <tr>
  * <th>Name</th>
  * <th>Description</th>
@@ -215,18 +215,18 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     /**
      * The progress of the animation.
-     * <p><font color="red">DO NOT DELETE OR RENAME</font>: Will be used by animations logic.</p>
+     * DO NOT DELETE OR RENAME: Will be used by animations logic.
      */
     @SuppressWarnings("unused")
     private float animProgress;
     /**
      * The radius for the animated indicator.
-     * <p><font color="red">DO NOT DELETE OR RENAME</font>: Will be used by animations logic.</p>
+     * DO NOT DELETE OR RENAME: Will be used by animations logic.
      */
     private float animIndicatorRadius;
     /**
      * The radius for the animated check mark.
-     * <p><font color="red">DO NOT DELETE OR RENAME</font>: Will be used by animations logic.</p>
+     * DO NOT DELETE OR RENAME: Will be used by animations logic.
      */
     private float animCheckRadius;
 
@@ -1098,7 +1098,6 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     /**
      * Remove all {@link OnStepClickListener} listeners from the StepperIndicator widget.
-     * <br/>
      * No more events will be propagated.
      */
     @SuppressWarnings("unused")
