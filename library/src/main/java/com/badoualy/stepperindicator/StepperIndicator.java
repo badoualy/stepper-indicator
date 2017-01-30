@@ -563,7 +563,6 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             setLabelColor(a.getColor(R.styleable.StepperIndicator_stpi_labelColor, 0));
         } else {
             setLabelColor(getTextColorSecondary(getContext()));
-
         }
 
         if (isInEditMode() && showLabels && labels == null) {
