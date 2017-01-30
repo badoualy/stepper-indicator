@@ -14,4 +14,6 @@
 
     <dimen name="stpi_default_label_size">12sp</dimen>
 	<dimen name="stpi_default_label_margin_top">2dp</dimen>
+
+	<dimen name="stpi_two_dp">2dp</dimen>
 </resources>

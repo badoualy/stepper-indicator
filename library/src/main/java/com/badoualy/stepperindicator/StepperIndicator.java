@@ -764,21 +764,24 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     }
 
     private void calculateMaxLabelHeight() {
-        if (showLabels) {
-            // gridWidth is the width of the grid assigned for the step indicator
-            int gridWidth = getMeasuredWidth() / stepCount;
+        if (!showLabels) return;
 
-            // Compute StaticLayout for the labels
-            wrappedLabels = new StaticLayout[labels.length];
-            maxLabelHeight = 0F;
-            float labelSingleLineHeight = labelPaint.descent() - labelPaint.ascent();
-            for (int i = 0; i < labels.length; i++) {
-                if (labels[i] == null) continue;
+        // gridWidth is the width of the grid assigned for the step indicator
+        int twoDp = getContext().getResources().getDimensionPixelSize(R.dimen.stpi_two_dp);
+        int gridWidth = getMeasuredWidth() / stepCount - twoDp;
 
-                wrappedLabels[i] = new StaticLayout(labels[i], labelPaint, gridWidth,
-                        Layout.Alignment.ALIGN_NORMAL, 1, 0, false);
-                maxLabelHeight = Math.max(maxLabelHeight, wrappedLabels[i].getLineCount() * labelSingleLineHeight);
-            }
+        if (gridWidth <= 0) return;
+
+        // Compute StaticLayout for the labels
+        wrappedLabels = new StaticLayout[labels.length];
+        maxLabelHeight = 0F;
+        float labelSingleLineHeight = labelPaint.descent() - labelPaint.ascent();
+        for (int i = 0; i < labels.length; i++) {
+            if (labels[i] == null) continue;
+
+            wrappedLabels[i] = new StaticLayout(labels[i], labelPaint, gridWidth,
+                    Layout.Alignment.ALIGN_NORMAL, 1, 0, false);
+            maxLabelHeight = Math.max(maxLabelHeight, wrappedLabels[i].getLineCount() * labelSingleLineHeight);
         }
     }
 
