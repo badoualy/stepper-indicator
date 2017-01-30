@@ -21,9 +21,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -154,6 +156,7 @@ import java.util.Random;
  *
  * <p> Updated by Ionut Negru on 08/08/16 to add the stepClickListener feature.</p>
  * <p> Updated by Ionut Negru on 09/08/16 to add support for customizations like: multiple colors, step text number, bottom indicator.</p>
+ * <p> Updated by Rakshak R.Hegde to add support for labels and it's customisations. Supports label wrapping too.</p>
  */
 @SuppressWarnings("unused")
 public class StepperIndicator extends View implements ViewPager.OnPageChangeListener {
@@ -283,11 +286,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     private boolean showDoneIcon;
 
     // If viewpager is attached, viewpager's page titles are used when {@code showLabels} equals true
-    private Paint labelPaint;
+    private TextPaint labelPaint;
     private CharSequence[] labels;
     private boolean showLabels;
     private float labelMarginTop;
     private float labelSize;
+    private StaticLayout[] wrappedLabels;
+    private float maxLabelHeight;
 
     // Running animations
     private AnimatorSet animatorSet;
@@ -546,7 +551,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         showDoneIcon = a.getBoolean(R.styleable.StepperIndicator_stpi_showDoneIcon, true);
 
         // Labels Configuration
-        labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        labelPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         labelPaint.setTextAlign(Paint.Align.CENTER);
 
         float defaultLabelSize = resources.getDimension(R.dimen.stpi_default_label_size);
@@ -645,7 +650,9 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
             startX = bottomIndicatorWidth / 2F;
         }
         if (showLabels) {
-            startX = (getMeasuredWidth() / (float) stepCount) / 2F;
+            // gridWidth is the width of the grid assigned for the step indicator
+            int gridWidth = getMeasuredWidth() / stepCount;
+            startX = gridWidth / 2F;
         }
 
         // Compute position of indicators and line length
@@ -727,12 +734,31 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         }
     }
 
-    private float getLabelHeight() {
-        return showLabels ? labelSize + labelMarginTop : 0;
+    private float getMaxLabelHeight() {
+        return showLabels ? maxLabelHeight + labelMarginTop : 0;
+    }
+
+    private void calculateMaxLabelHeight() {
+        if (showLabels) {
+            // gridWidth is the width of the grid assigned for the step indicator
+            int gridWidth = getMeasuredWidth() / stepCount;
+
+            // Compute StaticLayout for the labels
+            wrappedLabels = new StaticLayout[labels.length];
+            maxLabelHeight = 0F;
+            float labelSingleLineHeight = labelPaint.descent() - labelPaint.ascent();
+            for (int i = 0; i < labels.length; i++) {
+                if (labels[i] == null) continue;
+
+                wrappedLabels[i] = new StaticLayout(labels[i], labelPaint, gridWidth,
+                        Layout.Alignment.ALIGN_NORMAL, 1, 0, false);
+                maxLabelHeight = Math.max(maxLabelHeight, wrappedLabels[i].getLineCount() * labelSingleLineHeight);
+            }
+        }
     }
 
     private float getStepCenterY() {
-        return (getMeasuredHeight() - getBottomIndicatorHeight() - getLabelHeight()) / 2f;
+        return (getMeasuredHeight() - getBottomIndicatorHeight() - getMaxLabelHeight()) / 2f;
     }
 
 
@@ -780,11 +806,11 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                 canvas.drawText(stepLabel, stepAreaRectF.left, stepAreaRectF.top - stepTextNumberPaint.ascent(), stepTextNumberPaint);
             }
 
-            if(showLabels && labels != null &&
-                    i < labels.length && labels[i] != null) {
-                canvas.drawText(labels[i], 0, labels[i].length(),
-                        indicator, getHeight() - getBottomIndicatorHeight() - labelPaint.descent(),
-                        labelPaint);
+            if(showLabels && wrappedLabels != null &&
+                    i < wrappedLabels.length && wrappedLabels[i] != null) {
+                drawStaticLayout(wrappedLabels[i],
+                        indicator, getHeight() - getBottomIndicatorHeight() - maxLabelHeight,
+                        canvas, labelPaint);
             }
 
             if (useBottomIndicator) {
@@ -840,6 +866,17 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                 }
             }
         }
+    }
+
+    /**
+     * x and y anchored to top-middle point of StaticLayout
+     */
+    public static void drawStaticLayout(StaticLayout wrappedLabel, float x, float y,
+                                        Canvas canvas, TextPaint paint) {
+        canvas.save();
+        canvas.translate(x, y);
+        wrappedLabel.draw(canvas);
+        canvas.restore();
     }
 
     /**
@@ -933,12 +970,14 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        calculateMaxLabelHeight();
+
         // Compute the necessary height for the widget
         int desiredHeight = (int) Math.ceil(
-        		(circleRadius * EXPAND_MARK * 2)
-				        + circlePaint.getStrokeWidth()
-				        + getBottomIndicatorHeight()
-				        + getLabelHeight()
+                (circleRadius * EXPAND_MARK * 2) +
+                        circlePaint.getStrokeWidth() +
+                        getBottomIndicatorHeight() +
+                        getMaxLabelHeight()
         );
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
