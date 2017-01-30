@@ -152,6 +152,31 @@ import java.util.Random;
  * stpi_stepCount value)</td>
  * <td></td>
  * </tr>
+ * <tr>
+ * <td>stpi_labels</td>
+ * <td>supply an array of strings to show labels for every step indicator</td>
+ * <td></td>
+ * </tr>
+ * <tr>
+ * <td>stpi_showLabels</td>
+ * <td>Show labels for each step indicator. Useful for timelines or checkpoints.</td>
+ * <td>false</td>
+ * </tr>
+ * <tr>
+ * <td>stpi_labelMarginTop</td>
+ * <td>Top margin for the labels</td>
+ * <td>2dp</td>
+ * </tr>
+ * <tr>
+ * <td>stpi_labelSize</td>
+ * <td>Size for the labels</td>
+ * <td>12sp</td>
+ * </tr>
+ * <tr>
+ * <td>stpi_labelColor</td>
+ * <td>Color for the labels</td>
+ * <td>android:textColorSecondary defined in your project</td>
+ * </tr>
  * </tbody></table>
  *
  * <p> Updated by Ionut Negru on 08/08/16 to add the stepClickListener feature.</p>
