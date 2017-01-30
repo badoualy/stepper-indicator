@@ -836,7 +836,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
             if(showLabels && wrappedLabels != null &&
                     i < wrappedLabels.length && wrappedLabels[i] != null) {
-                drawStaticLayout(wrappedLabels[i],
+                drawLayout(wrappedLabels[i],
                         indicator, getHeight() - getBottomIndicatorHeight() - maxLabelHeight,
                         canvas, labelPaint);
             }
@@ -899,8 +899,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * x and y anchored to top-middle point of StaticLayout
      */
-    public static void drawStaticLayout(StaticLayout wrappedLabel, float x, float y,
-                                        Canvas canvas, TextPaint paint) {
+    public static void drawLayout(Layout wrappedLabel, float x, float y,
+                                  Canvas canvas, TextPaint paint) {
         canvas.save();
         canvas.translate(x, y);
         wrappedLabel.draw(canvas);
