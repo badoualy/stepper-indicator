@@ -33,5 +33,6 @@
         <attr format="boolean" name="stpi_showLabels"/>
         <attr format="dimension" name="stpi_labelMarginTop"/>
         <attr format="dimension" name="stpi_labelSize"/>
+        <attr format="color" name="stpi_labelColor"/>
     </declare-styleable>
 </resources>

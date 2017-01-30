@@ -21,6 +21,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -369,6 +370,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         return color;
     }
 
+    public static int getTextColorSecondary(final Context context) {
+        TypedArray t = context.obtainStyledAttributes(new int[]{android.R.attr.textColorSecondary});
+        int color = t.getColor(0, ContextCompat.getColor(context, R.color.stpi_default_text_color));
+        t.recycle();
+        return color;
+    }
+
     private static PathEffect createPathEffect(float pathLength, float phase, float offset) {
         // Create a PathEffect to set on a Paint to only draw some part of the line
         return new DashPathEffect(new float[]{pathLength, pathLength}, Math.max(phase * pathLength, offset));
@@ -550,6 +558,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
         showLabels(a.getBoolean(R.styleable.StepperIndicator_stpi_showLabels, false));
         setLabels(a.getTextArray(R.styleable.StepperIndicator_stpi_labels));
+
+        if(a.hasValue(R.styleable.StepperIndicator_stpi_labelColor)) {
+            setLabelColor(a.getColor(R.styleable.StepperIndicator_stpi_labelColor, 0));
+        } else {
+            setLabelColor(getTextColorSecondary(getContext()));
+
+        }
 
         if (isInEditMode() && showLabels && labels == null) {
             labels = new CharSequence[]{"First", "Second", "Third", "Fourth", "Fifth"};
@@ -1155,6 +1170,10 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         }
         labels = labelsArray;
         showLabels(true);
+    }
+
+    public void setLabelColor(int color) {
+        labelPaint.setColor(color);
     }
 
     /**
