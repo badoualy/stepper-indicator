@@ -17,8 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
         android:layout_marginRight="32dp"
-        app:stpi_showStepNumberInstead="true"
         android:layout_marginTop="32dp"
-        app:stpi_stepCount="5"/>
+        app:stpi_labels="@array/stepLabels"/>
 
 </RelativeLayout>

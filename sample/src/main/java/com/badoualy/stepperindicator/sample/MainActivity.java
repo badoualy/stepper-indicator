@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 6;
+            return 5;
         }
 
         @Override
@@ -87,5 +87,9 @@ public class MainActivity extends AppCompatActivity {
             return PageFragment.newInstance(position + 1, position == getCount() - 1);
         }
 
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "Page " + position;
+        }
     }
 }

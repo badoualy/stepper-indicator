@@ -21,6 +21,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -272,13 +273,20 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     // X position of each step indicator's center
     private float[] indicators;
-    // Utils to avoid object instanciation during onDraw
+    // Utils to avoid object instantiation during onDraw
     private Rect stepAreaRect = new Rect();
     private RectF stepAreaRectF = new RectF();
 
     private ViewPager pager;
     private Bitmap doneIcon;
     private boolean showDoneIcon;
+
+    // If viewpager is attached, viewpager's page titles are used when {@code showLabels} equals true
+    private Paint labelPaint;
+    private CharSequence[] labels;
+    private boolean showLabels;
+    private float labelMarginTop;
+    private float labelSize;
 
     // Running animations
     private AnimatorSet animatorSet;
@@ -529,6 +537,28 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         animDuration = a.getInteger(R.styleable.StepperIndicator_stpi_animDuration, DEFAULT_ANIMATION_DURATION);
         showDoneIcon = a.getBoolean(R.styleable.StepperIndicator_stpi_showDoneIcon, true);
 
+        // Labels Configuration
+        labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        labelPaint.setTextAlign(Paint.Align.CENTER);
+
+        float defaultLabelSize = resources.getDimension(R.dimen.stpi_default_label_size);
+        labelSize = a.getDimension(R.styleable.StepperIndicator_stpi_labelSize, defaultLabelSize);
+        labelPaint.setTextSize(labelSize);
+
+        float defaultLabelMarginTop = resources.getDimension(R.dimen.stpi_default_label_margin_top);
+        labelMarginTop = a.getDimension(R.styleable.StepperIndicator_stpi_labelMarginTop, defaultLabelMarginTop);
+
+        showLabels(a.getBoolean(R.styleable.StepperIndicator_stpi_showLabels, false));
+        setLabels(a.getTextArray(R.styleable.StepperIndicator_stpi_labels));
+
+        if (isInEditMode() && showLabels && labels == null) {
+            labels = new CharSequence[]{"First", "Second", "Third", "Fourth", "Fifth"};
+        }
+
+        if (!a.hasValue(R.styleable.StepperIndicator_stpi_stepCount) && labels != null) {
+            setStepCount(labels.length);
+        }
+
         a.recycle();
 
         if (showDoneIcon) {
@@ -598,7 +628,10 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
         float startX = circleRadius * EXPAND_MARK + circlePaint.getStrokeWidth() / 2f;
         if (useBottomIndicator) {
-            startX += bottomIndicatorWidth / 2 - startX;
+            startX = bottomIndicatorWidth / 2F;
+        }
+        if (showLabels) {
+            startX = (getMeasuredWidth() / (float) stepCount) / 2F;
         }
 
         // Compute position of indicators and line length
@@ -680,8 +713,12 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         }
     }
 
+    private float getLabelHeight() {
+        return showLabels ? labelSize + labelMarginTop : 0;
+    }
+
     private float getStepCenterY() {
-        return (getMeasuredHeight() - getBottomIndicatorHeight()) / 2f;
+        return (getMeasuredHeight() - getBottomIndicatorHeight() - getLabelHeight()) / 2f;
     }
 
 
@@ -727,6 +764,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                 stepAreaRectF.top += (stepAreaRect.height() - stepAreaRectF.bottom) / 2.0f;
 
                 canvas.drawText(stepLabel, stepAreaRectF.left, stepAreaRectF.top - stepTextNumberPaint.ascent(), stepTextNumberPaint);
+            }
+
+            if(showLabels && labels != null &&
+                    i < labels.length && labels[i] != null) {
+                canvas.drawText(labels[i], 0, labels[i].length(),
+                        indicator, getHeight() - getBottomIndicatorHeight() - labelPaint.descent(),
+                        labelPaint);
             }
 
             if (useBottomIndicator) {
@@ -876,8 +920,12 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Compute the necessary height for the widget
-        int desiredHeight = (int) Math.ceil((circleRadius * EXPAND_MARK * 2) + circlePaint.getStrokeWidth() +
-                                                    getBottomIndicatorHeight());
+        int desiredHeight = (int) Math.ceil(
+        		(circleRadius * EXPAND_MARK * 2)
+				        + circlePaint.getStrokeWidth()
+				        + getBottomIndicatorHeight()
+				        + getLabelHeight()
+        );
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -1073,6 +1121,48 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         this.stepCount = stepCount;
         currentStep = 0;
         pager.addOnPageChangeListener(this);
+
+        if(showLabels && labels == null) {
+            setLabelsUsingPageTitles();
+        }
+
+        invalidate();
+    }
+
+    private void setLabelsUsingPageTitles() {
+        PagerAdapter pagerAdapter = pager.getAdapter();
+        int pagerCount = pagerAdapter.getCount();
+        labels = new CharSequence[pagerCount];
+        for(int i = 0; i < pagerCount; i++)
+            labels[i] = pagerAdapter.getPageTitle(i);
+    }
+
+    /**
+     * Pass a labels array of Charsequence that is greater than or equal to the {@code stepCount}.
+     * Never pass {@code null} to this manually. Call {@code showLabels(false)} to hide labels.
+     *
+     * @param labelsArray Non-null array of CharSequence
+     */
+    public void setLabels(CharSequence[] labelsArray) {
+        if (labelsArray == null) {
+            labels = null;
+            return;
+        }
+        if (stepCount > labelsArray.length) {
+            throw new IllegalArgumentException(
+                    "Invalid number of labels for the indicators. Please provide a list " +
+                            "of labels with at least as many items as the number of steps required!");
+        }
+        labels = labelsArray;
+        showLabels(true);
+    }
+
+    /**
+     * Shows the labels if true is passed. Else hides them.
+     * @param show Boolean to show or hide the labels
+     */
+    public void showLabels(boolean show) {
+        showLabels = show;
         invalidate();
     }
 

@@ -27,5 +27,11 @@
 
         <attr format="reference" name="stpi_stepsCircleColors"/>
         <attr format="reference" name="stpi_stepsIndicatorColors"/>
+
+
+        <attr format="reference" name="stpi_labels"/>
+        <attr format="boolean" name="stpi_showLabels"/>
+        <attr format="dimension" name="stpi_labelMarginTop"/>
+        <attr format="dimension" name="stpi_labelSize"/>
     </declare-styleable>
 </resources>
