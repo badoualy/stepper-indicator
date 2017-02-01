@@ -613,7 +613,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         if (isInEditMode()) {
             currentStep = Math.max((int) Math.ceil(stepCount / 2f), 1);
         }
-
+	if (isInEditMode()) return; // this will ensure that the view will render properly on the Layout Editor.
         // Initialize the gesture detector, setup with our custom gesture listener
         gestureDetector = new GestureDetector(getContext(), gestureListener);
     }
