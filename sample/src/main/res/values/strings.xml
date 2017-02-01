@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Stepper Indicator</string>
+
+    <string-array name="stepLabels">
+        <item>Approval</item>
+        <item>Processed</item>
+        <item>Shipped</item>
+        <item>Delivery</item>
+    </string-array>
 </resources>
