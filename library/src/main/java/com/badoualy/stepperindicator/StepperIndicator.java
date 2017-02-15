@@ -763,12 +763,12 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         return showLabels ? maxLabelHeight + labelMarginTop : 0;
     }
 
-    private void calculateMaxLabelHeight() {
+    private void calculateMaxLabelHeight(final int measuredWidth) {
         if (!showLabels) return;
 
         // gridWidth is the width of the grid assigned for the step indicator
         int twoDp = getContext().getResources().getDimensionPixelSize(R.dimen.stpi_two_dp);
-        int gridWidth = getMeasuredWidth() / stepCount - twoDp;
+        int gridWidth = measuredWidth / stepCount - twoDp;
 
         if (gridWidth <= 0) return;
 
@@ -998,7 +998,13 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        calculateMaxLabelHeight();
+
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+
+        int width = widthMode == MeasureSpec.EXACTLY ? widthSize : getSuggestedMinimumWidth();
+
+        calculateMaxLabelHeight(width);
 
         // Compute the necessary height for the widget
         int desiredHeight = (int) Math.ceil(
@@ -1008,12 +1014,8 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
                         getMaxLabelHeight()
         );
 
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-
-        int width = widthMode == MeasureSpec.EXACTLY ? widthSize : getSuggestedMinimumWidth();
         int height = heightMode == MeasureSpec.EXACTLY ? heightSize : desiredHeight;
 
         setMeasuredDimension(width, height);
