@@ -30,5 +30,4 @@ dependencies {
         compile project(':library')
     else
         compile 'com.github.badoualy:stepper-indicator:1.0.4'
-	compile 'com.android.support.constraint:constraint-layout:1.0.0-beta5'
 }
