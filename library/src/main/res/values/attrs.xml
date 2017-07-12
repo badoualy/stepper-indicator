@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <declare-styleable name="StepperIndicator" tools:ignore="ResourceName">
-        <attr format="integer" name="stpi_stepCount"/>
-        <attr format="integer" name="stpi_animDuration"/>
+        <attr name="stpi_stepCount" format="integer"/>
+        <attr name="stpi_animDuration" format="integer"/>
 
-        <attr format="color" name="stpi_circleColor"/>
-        <attr format="dimension" name="stpi_circleRadius"/>
-        <attr format="dimension" name="stpi_circleStrokeWidth"/>
+        <attr name="stpi_circleColor" format="color"/>
+        <attr name="stpi_circleRadius" format="dimension"/>
+        <attr name="stpi_circleStrokeWidth" format="dimension"/>
 
-        <attr format="color" name="stpi_indicatorColor"/>
-        <attr format="dimension" name="stpi_indicatorRadius"/>
+        <attr name="stpi_indicatorColor" format="color"/>
+        <attr name="stpi_indicatorRadius" format="dimension"/>
 
-        <attr format="color" name="stpi_lineColor"/>
-        <attr format="color" name="stpi_lineDoneColor"/>
-        <attr format="dimension" name="stpi_lineStrokeWidth"/>
-        <attr format="dimension" name="stpi_lineMargin"/>
+        <attr name="stpi_lineColor" format="color"/>
+        <attr name="stpi_lineDoneColor" format="color"/>
+        <attr name="stpi_lineStrokeWidth" format="dimension"/>
+        <attr name="stpi_lineMargin" format="dimension"/>
 
-        <attr format="boolean" name="stpi_showDoneIcon"/>
-        <attr format="boolean" name="stpi_showStepNumberInstead"/>
+        <attr name="stpi_showDoneIcon" format="boolean"/>
+        <attr name="stpi_showStepNumberInstead" format="boolean"/>
+        <attr name="stpi_doneIconDrawable" format="reference"/>
 
-        <attr format="boolean" name="stpi_useBottomIndicator"/>
-        <attr format="boolean" name="stpi_useBottomIndicatorWithStepColors"/>
-        <attr format="dimension" name="stpi_bottomIndicatorHeight"/>
-        <attr format="dimension" name="stpi_bottomIndicatorWidth"/>
-        <attr format="dimension" name="stpi_bottomIndicatorMarginTop"/>
+        <attr name="stpi_useBottomIndicator" format="boolean"/>
+        <attr name="stpi_useBottomIndicatorWithStepColors" format="boolean"/>
+        <attr name="stpi_bottomIndicatorHeight" format="dimension"/>
+        <attr name="stpi_bottomIndicatorWidth" format="dimension"/>
+        <attr name="stpi_bottomIndicatorMarginTop" format="dimension"/>
 
-        <attr format="reference" name="stpi_stepsCircleColors"/>
-        <attr format="reference" name="stpi_stepsIndicatorColors"/>
+        <attr name="stpi_stepsCircleColors" format="reference"/>
+        <attr name="stpi_stepsIndicatorColors" format="reference"/>
 
-
-        <attr format="reference" name="stpi_labels"/>
-        <attr format="boolean" name="stpi_showLabels"/>
-        <attr format="dimension" name="stpi_labelMarginTop"/>
-        <attr format="dimension" name="stpi_labelSize"/>
-        <attr format="color" name="stpi_labelColor"/>
+        <attr name="stpi_labels" format="reference"/>
+        <attr name="stpi_showLabels" format="boolean"/>
+        <attr name="stpi_labelMarginTop" format="dimension"/>
+        <attr name="stpi_labelSize" format="dimension"/>
+        <attr name="stpi_labelColor" format="color"/>
     </declare-styleable>
 </resources>
