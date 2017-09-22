@@ -3,6 +3,7 @@
 
 # ![](https://github.com/badoualy/stepper-indicator/blob/master/sample/src/main/res/mipmap-mdpi/ic_launcher.png) Stepper indicator
 > ### Designed by the awesome https://dribbble.com/LeslyPyram :)
+> #### iOS (swift) version available at https://github.com/chenyun122/StepIndicator
 
 <img src="https://github.com/badoualy/stepper-indicator/blob/master/ART/screen.gif" width="300">
 
