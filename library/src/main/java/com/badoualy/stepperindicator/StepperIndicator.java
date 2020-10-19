@@ -18,11 +18,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -33,6 +28,13 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.core.content.ContextCompat;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,7 +189,7 @@ import java.util.Random;
  * <p> Updated by Rakshak R.Hegde to add support for labels and it's customisations. Supports label too.</p>
  */
 @SuppressWarnings("unused")
-public class StepperIndicator extends View implements ViewPager.OnPageChangeListener {
+public class StepperIndicator extends View implements ViewPager.OnPageChangeListener{
 
     private static final String TAG = "StepperIndicator";
 
@@ -345,8 +347,10 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
     private Rect stepAreaRect = new Rect();
     private RectF stepAreaRectF = new RectF();
 
+    private ViewPager2 pager2;
     private ViewPager pager;
     private Drawable doneIcon;
+    private ViewPager2.OnPageChangeCallback page2Callback;
     private boolean showDoneIcon;
 
     // If viewpager is attached, viewpager's page titles are used when {@code showLabels} equals true
@@ -663,6 +667,25 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
 
         // Initialize the gesture detector, setup with our custom gesture listener
         gestureDetector = new GestureDetector(getContext(), gestureListener);
+
+
+        page2Callback = new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                setCurrentStep(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+            }
+        };
     }
 
     /**
@@ -1218,6 +1241,20 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         setViewPager(pager, pager.getAdapter().getCount());
     }
 
+
+
+    /**
+     * Set the {@link ViewPager2} associated with this widget indicator.
+     *
+     * @param pager {@link ViewPager2} to attach
+     */
+    public void setViewPager(ViewPager2 pager){
+        if (pager.getAdapter() == null) {
+            throw new IllegalStateException("ViewPager does not have adapter instance.");
+        }
+        setViewPager(pager, pager.getAdapter().getItemCount());
+    }
+
     /**
      * Set the {@link ViewPager} associated with this widget indicator.
      *
@@ -1256,6 +1293,39 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         this.stepCount = stepCount;
         currentStep = 0;
         pager.addOnPageChangeListener(this);
+
+        if (showLabels && labels == null) {
+            setLabelsUsingPageTitles();
+        }
+
+        requestLayout();
+        invalidate();
+    }
+
+
+    /**
+     * Set the {@link ViewPager2} associated with this widget indicator.
+     *
+     * @param pager     {@link ViewPager2} to attach
+     * @param stepCount The real page count to display (use this if you are using looped viewpager to indicate the real
+     *                  number
+     *                  of pages)
+     */
+    public void setViewPager(ViewPager2 pager, int stepCount) {
+        if (this.pager2 == pager) {
+            return;
+        }
+        if (this.pager2 != null) {
+            pager.unregisterOnPageChangeCallback(page2Callback);
+        }
+        if (pager.getAdapter() == null) {
+            throw new IllegalStateException("ViewPager does not have adapter instance.");
+        }
+
+        this.pager2 = pager;
+        this.stepCount = stepCount;
+        currentStep = 0;
+        pager.registerOnPageChangeCallback(page2Callback);
 
         if (showLabels && labels == null) {
             setLabelsUsingPageTitles();
@@ -1363,6 +1433,7 @@ public class StepperIndicator extends View implements ViewPager.OnPageChangeList
         this.showDoneIcon = showDoneIcon;
         invalidate();
     }
+
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
